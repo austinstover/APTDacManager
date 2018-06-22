@@ -1,0 +1,382 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Welcome to APTDacManager’s documentation! &mdash; APTDacManager 0.9.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="#" class="icon icon-home"> APTDacManager
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.9
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Welcome to APTDacManager’s documentation!</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">APTDacManager</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#">Docs</a> &raquo;</li>
+        
+      <li>Welcome to APTDacManager’s documentation!</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="welcome-to-aptdacmanager-s-documentation">
+<h1>Welcome to APTDacManager’s documentation!<a class="headerlink" href="#welcome-to-aptdacmanager-s-documentation" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<span class="target" id="module-DacMaster"></span><p>This program defines a class to control DACs hosted by an Arduino slave via the Modbus
+RTU RS485 protocol for the APT experiment CERN prototype</p>
+<dl class="class">
+<dt id="DacMaster.DacMaster">
+<em class="property">class </em><code class="descclassname">DacMaster.</code><code class="descname">DacMaster</code><span class="sig-paren">(</span><em>slaveId</em>, <em>port</em>, <em>baudrate</em>, <em>numBoards=1</em>, <em>timeout=0.05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DacMaster.html#DacMaster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DacMaster.DacMaster" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class defines methods to send and receive commands and data via Modbus RTU
+RS485 to a slave that talks to a DAC using an SPI interface, to be used with
+DacSlave.ino</p>
+<dl class="method">
+<dt id="DacMaster.DacMaster.address">
+<code class="descname">address</code><span class="sig-paren">(</span><em>dacChan</em>, <em>dacNum</em>, <em>boardNum=0</em>, <em>sipmChan=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DacMaster.html#DacMaster.address"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DacMaster.DacMaster.address" title="Permalink to this definition">¶</a></dt>
+<dd><p>Outputs the address to use given the DAC channel IDs</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dacChan</strong> – Specifies the channel on the DAC (0-3)</li>
+<li><strong>dacNum</strong> – Specifies the DAC on the board (0-1)</li>
+<li><strong>boardNum</strong> – Specifies the board</li>
+<li><strong>sipmChan</strong> – Specifies the SiPM channel</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The DAC channel address</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="DacMaster.DacMaster.convertToActualV">
+<em class="property">static </em><code class="descname">convertToActualV</code><span class="sig-paren">(</span><em>rawV</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DacMaster.html#DacMaster.convertToActualV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DacMaster.DacMaster.convertToActualV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts the input raw 12-bit voltage to the floating-point value</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rawV</strong> – The 12-bit unsigned integer output by many DacMaster functions</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The floating-point equivalent of rawV</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="DacMaster.DacMaster.convertToRawV">
+<em class="property">static </em><code class="descname">convertToRawV</code><span class="sig-paren">(</span><em>actualV</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DacMaster.html#DacMaster.convertToRawV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DacMaster.DacMaster.convertToRawV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts a floating-point voltage to its raw 12-bit value to input into many
+DacMaster functions
+:param actualV: The floating-point voltage value to convert
+:returns: The 12-bit raw voltage equivalent of actualV</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="DacMaster.DacMaster.getPower">
+<code class="descname">getPower</code><span class="sig-paren">(</span><em>address</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DacMaster.html#DacMaster.getPower"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DacMaster.DacMaster.getPower" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns whether power to the DAC channel analog output
+is on or off in the slave coil</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>address</strong> – The address of the DAC channel</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if power to the analog channel was switched on; False if it
+was switched off. The DACs default to off.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DacMaster.DacMaster.getV">
+<code class="descname">getV</code><span class="sig-paren">(</span><em>address</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DacMaster.html#DacMaster.getV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DacMaster.DacMaster.getV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the voltage for the DAC channel in the slave holding register</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>address</strong> – The address of the DAC channel</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The voltage held in the slave</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DacMaster.DacMaster.powerDown">
+<code class="descname">powerDown</code><span class="sig-paren">(</span><em>address</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DacMaster.html#DacMaster.powerDown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DacMaster.DacMaster.powerDown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Powers off the DAC channel analog output</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>address</strong> – The address of the DAC channel</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DacMaster.DacMaster.powerUp">
+<code class="descname">powerUp</code><span class="sig-paren">(</span><em>address</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DacMaster.html#DacMaster.powerUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DacMaster.DacMaster.powerUp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Powers on the DAC channel analog output.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>address</strong> – The address of the DAC channel</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DacMaster.DacMaster.readV">
+<code class="descname">readV</code><span class="sig-paren">(</span><em>address</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DacMaster.html#DacMaster.readV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DacMaster.DacMaster.readV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Should return the approximate DAC input register voltage
+WARNING: This may not return the exact voltage held in the input register, since
+the slave is reading the DAC on the wrong side of the CLK signal. This method
+should only be used to check the DAC is operating in general, but not for
+exact reads.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>address</strong> – The address of the DAC channel</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The approximate voltage in the DAC channel input register</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="DacMaster.DacMaster.updateV">
+<code class="descname">updateV</code><span class="sig-paren">(</span><em>address</em>, <em>newRawV</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DacMaster.html#DacMaster.updateV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DacMaster.DacMaster.updateV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the voltage in the DAC channel input register, then updates the DAC
+register by pulsing the LDAC pin. The DAC channel must then be powered on to
+output the voltage.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>newV</strong> – The raw integer voltage with which to update the DAC channel</li>
+<li><strong>address</strong> – The address of the DAC channel</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Austin Stover.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.9.1',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

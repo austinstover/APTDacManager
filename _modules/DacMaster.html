@@ -1,0 +1,341 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>DacMaster &mdash; APTDacManager 0.9.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> APTDacManager
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.9
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">APTDacManager</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>DacMaster</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for DacMaster</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">This program defines a class to control DACs hosted by an Arduino slave via the Modbus</span>
+<span class="sd">RTU RS485 protocol for the APT experiment CERN prototype</span>
+
+<span class="sd">..  moduleauthor:: Austin Stover &lt;stover.a@wustl.edu&gt;</span>
+<span class="sd">    :date: June 2018</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">import</span> <span class="nn">minimalmodbus</span> <span class="k">as</span> <span class="nn">mb</span>
+
+<div class="viewcode-block" id="DacMaster"><a class="viewcode-back" href="../index.html#DacMaster.DacMaster">[docs]</a><span class="k">class</span> <span class="nc">DacMaster</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This class defines methods to send and receive commands and data via Modbus RTU</span>
+<span class="sd">    RS485 to a slave that talks to a DAC using an SPI interface, to be used with</span>
+<span class="sd">    DacSlave.ino</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slaveId</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">baudrate</span><span class="p">,</span> <span class="n">numBoards</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Instantiates a DacMaster using the Modbus RTU protocol over RS458</span>
+<span class="sd">        </span>
+<span class="sd">        :param slaveId: The ID number to use for the slave</span>
+<span class="sd">        :param port: The serial port to use</span>
+<span class="sd">        :param baudrate: Compatible baud rates: 4800, 9600, 14400, 19200, 28800</span>
+<span class="sd">        :param timeout: The max. length of time to wait for a slave to respond (s)</span>
+<span class="sd">        :param numBoards: The number of DAC boards hooked up to the slave</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mb</span><span class="o">.</span><span class="n">BAUDRATE</span> <span class="o">=</span> <span class="n">baudrate</span>
+        <span class="n">mb</span><span class="o">.</span><span class="n">TIMEOUT</span> <span class="o">=</span> <span class="n">timeout</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slave</span> <span class="o">=</span> <span class="n">mb</span><span class="o">.</span><span class="n">Instrument</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">slaveId</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numBoards</span> <span class="o">=</span> <span class="n">numBoards</span>
+        
+<div class="viewcode-block" id="DacMaster.updateV"><a class="viewcode-back" href="../index.html#DacMaster.DacMaster.updateV">[docs]</a>    <span class="k">def</span> <span class="nf">updateV</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">newRawV</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Updates the voltage in the DAC channel input register, then updates the DAC</span>
+<span class="sd">        register by pulsing the LDAC pin. The DAC channel must then be powered on to</span>
+<span class="sd">        output the voltage.</span>
+
+<span class="sd">        :param newV: The raw integer voltage with which to update the DAC channel</span>
+<span class="sd">        :param address: The address of the DAC channel</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">write_register</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">newRawV</span><span class="p">,</span> <span class="n">functioncode</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DacMaster.getV"><a class="viewcode-back" href="../index.html#DacMaster.DacMaster.getV">[docs]</a>    <span class="k">def</span> <span class="nf">getV</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the voltage for the DAC channel in the slave holding register</span>
+
+<span class="sd">        :param address: The address of the DAC channel</span>
+<span class="sd">        :returns: The voltage held in the slave</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">functioncode</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DacMaster.readV"><a class="viewcode-back" href="../index.html#DacMaster.DacMaster.readV">[docs]</a>    <span class="k">def</span> <span class="nf">readV</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Should return the approximate DAC input register voltage</span>
+<span class="sd">        WARNING: This may not return the exact voltage held in the input register, since</span>
+<span class="sd">        the slave is reading the DAC on the wrong side of the CLK signal. This method</span>
+<span class="sd">        should only be used to check the DAC is operating in general, but not for</span>
+<span class="sd">        exact reads.</span>
+<span class="sd">            </span>
+<span class="sd">        :param address: The address of the DAC channel</span>
+<span class="sd">        :returns: The approximate voltage in the DAC channel input register</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">read_register</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">functioncode</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DacMaster.powerUp"><a class="viewcode-back" href="../index.html#DacMaster.DacMaster.powerUp">[docs]</a>    <span class="k">def</span> <span class="nf">powerUp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Powers on the DAC channel analog output.</span>
+<span class="sd">        </span>
+<span class="sd">        :param address: The address of the DAC channel</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">write_bit</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">functioncode</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DacMaster.powerDown"><a class="viewcode-back" href="../index.html#DacMaster.DacMaster.powerDown">[docs]</a>    <span class="k">def</span> <span class="nf">powerDown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Powers off the DAC channel analog output</span>
+<span class="sd">        </span>
+<span class="sd">        :param address: The address of the DAC channel</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">write_bit</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">functioncode</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DacMaster.getPower"><a class="viewcode-back" href="../index.html#DacMaster.DacMaster.getPower">[docs]</a>    <span class="k">def</span> <span class="nf">getPower</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns whether power to the DAC channel analog output</span>
+<span class="sd">        is on or off in the slave coil</span>
+<span class="sd">        </span>
+<span class="sd">        :param address: The address of the DAC channel</span>
+<span class="sd">        :returns: True if power to the analog channel was switched on; False if it</span>
+<span class="sd">            was switched off. The DACs default to off.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">slave</span><span class="o">.</span><span class="n">read_bit</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">functioncode</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+                                   
+<div class="viewcode-block" id="DacMaster.address"><a class="viewcode-back" href="../index.html#DacMaster.DacMaster.address">[docs]</a>    <span class="k">def</span> <span class="nf">address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dacChan</span><span class="p">,</span> <span class="n">dacNum</span><span class="p">,</span> <span class="n">boardNum</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sipmChan</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Outputs the address to use given the DAC channel IDs</span>
+
+<span class="sd">        :param dacChan: Specifies the channel on the DAC (0-3)</span>
+<span class="sd">        :param dacNum: Specifies the DAC on the board (0-1)</span>
+<span class="sd">        :param boardNum: Specifies the board</span>
+<span class="sd">        :param sipmChan: Specifies the SiPM channel</span>
+<span class="sd">        :returns: The DAC channel address</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">numBoards</span><span class="o">*</span><span class="mi">4</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">sipmChan</span> <span class="o">+</span> <span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="n">boardNum</span> <span class="o">+</span> <span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">dacNum</span> <span class="o">+</span> <span class="n">dacChan</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="DacMaster.convertToActualV"><a class="viewcode-back" href="../index.html#DacMaster.DacMaster.convertToActualV">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">convertToActualV</span><span class="p">(</span><span class="n">rawV</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Converts the input raw 12-bit voltage to the floating-point value</span>
+
+<span class="sd">        :param rawV: The 12-bit unsigned integer output by many DacMaster functions</span>
+<span class="sd">        :returns: The floating-point equivalent of rawV</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">rawV</span> <span class="o">*</span> <span class="mf">60.0</span><span class="o">/</span><span class="mf">4096.0</span></div>
+
+<div class="viewcode-block" id="DacMaster.convertToRawV"><a class="viewcode-back" href="../index.html#DacMaster.DacMaster.convertToRawV">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">convertToRawV</span><span class="p">(</span><span class="n">actualV</span><span class="p">):</span> <span class="c1">#TODO: Ensure actualV is non-negative</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Converts a floating-point voltage to its raw 12-bit value to input into many</span>
+<span class="sd">        DacMaster functions</span>
+<span class="sd">        :param actualV: The floating-point voltage value to convert</span>
+<span class="sd">        :returns: The 12-bit raw voltage equivalent of actualV</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rawV</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">)(</span><span class="n">actualV</span> <span class="o">*</span> <span class="mf">4096.0</span><span class="o">/</span><span class="mf">60.0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">rawV</span> <span class="k">if</span> <span class="n">rawV</span> <span class="o">&lt;</span> <span class="mi">4096</span> <span class="k">else</span> <span class="mi">4095</span> <span class="c1">#rawV must be a 12 bit number or less</span></div></div>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;A DacMaster Demo Program&quot;&quot;&quot;</span>
+    <span class="n">slaveId</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">port</span> <span class="o">=</span> <span class="s1">&#39;COM4&#39;</span>
+    <span class="n">baudrate</span> <span class="o">=</span> <span class="mi">9600</span>
+    <span class="n">dacChan</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">dacNum</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">voltage</span> <span class="o">=</span> <span class="n">DacMaster</span><span class="o">.</span><span class="n">convertToRawV</span><span class="p">(</span><span class="mf">5.00</span><span class="p">)</span>
+    
+    <span class="n">cntrl</span> <span class="o">=</span> <span class="n">DacMaster</span><span class="p">(</span><span class="n">slaveId</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">baudrate</span><span class="p">)</span>
+    <span class="n">dacAddress</span> <span class="o">=</span> <span class="n">cntrl</span><span class="o">.</span><span class="n">address</span><span class="p">(</span><span class="n">dacChan</span><span class="p">,</span> <span class="n">dacNum</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;dacAddress: &quot;</span><span class="p">,</span> <span class="n">dacAddress</span><span class="p">)</span>
+    <span class="n">cntrl</span><span class="o">.</span><span class="n">updateV</span><span class="p">(</span><span class="n">dacAddress</span><span class="p">,</span> <span class="n">voltage</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;rawV: &quot;</span><span class="p">,</span> <span class="nb">bin</span><span class="p">(</span><span class="n">voltage</span><span class="p">))</span>
+    <span class="n">cntrl</span><span class="o">.</span><span class="n">powerUp</span><span class="p">(</span><span class="n">dacAddress</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;getV: &quot;</span><span class="p">,</span> <span class="n">DacMaster</span><span class="o">.</span><span class="n">convertToActualV</span><span class="p">(</span><span class="n">cntrl</span><span class="o">.</span><span class="n">getV</span><span class="p">(</span><span class="n">dacAddress</span><span class="p">)))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;readV: &quot;</span><span class="p">,</span> <span class="n">DacMaster</span><span class="o">.</span><span class="n">convertToActualV</span><span class="p">(</span><span class="n">cntrl</span><span class="o">.</span><span class="n">readV</span><span class="p">(</span><span class="n">dacAddress</span><span class="p">)))</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Austin Stover.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.9.1',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
