@@ -1,6 +1,6 @@
 '''
 This program defines a class to control DACs hosted by an Arduino slave via the Modbus
-RTU RS485 protocol for the APT experiment CERN prototype
+RTU RS485 protocol for the APT experiment CERN prototype.
 
 ..  moduleauthor:: Austin Stover <stover.a@wustl.edu>
     :date: June 2018
@@ -9,21 +9,19 @@ RTU RS485 protocol for the APT experiment CERN prototype
 import minimalmodbus as mb
 
 class DacMaster:
-    """This class defines methods to send and receive commands and data via Modbus RTU
-    RS485 to a slave that talks to a DAC using an SPI interface, to be used with
-    DacSlave.ino
+    """This class defines methods to send and receive commands to the slave.
+
+    The constructor instantiates a DacMaster using the Modbus RTU protocol over RS458.
+    
+    :param slaveId: The ID number to use for the slave
+    :param port: The serial port to use
+    :param baudrate: Compatible baud rates: 4800, 9600, 14400, 19200, 28800
+    :param timeout: The max. length of time to wait for a slave to respond (s)
+    :param numBoards: The number of DAC boards hooked up to the slave
     """
     
     def __init__(self, slaveId, port, baudrate, numBoards=1, timeout=0.05):
-        """Instantiates a DacMaster using the Modbus RTU protocol over RS458
-        
-        :param slaveId: The ID number to use for the slave
-        :param port: The serial port to use
-        :param baudrate: Compatible baud rates: 4800, 9600, 14400, 19200, 28800
-        :param timeout: The max. length of time to wait for a slave to respond (s)
-        :param numBoards: The number of DAC boards hooked up to the slave
-        """
-        mb.BAUDRATE = baudrate
+                mb.BAUDRATE = baudrate
         mb.TIMEOUT = timeout
         self.slave = mb.Instrument(port, slaveId)
         self.numBoards = numBoards
