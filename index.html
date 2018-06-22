@@ -153,13 +153,27 @@
 <div class="toctree-wrapper compound">
 </div>
 <span class="target" id="module-DacMaster"></span><p>This program defines a class to control DACs hosted by an Arduino slave via the Modbus
-RTU RS485 protocol for the APT experiment CERN prototype</p>
+RTU RS485 protocol for the APT experiment CERN prototype.</p>
 <dl class="class">
 <dt id="DacMaster.DacMaster">
 <em class="property">class </em><code class="descclassname">DacMaster.</code><code class="descname">DacMaster</code><span class="sig-paren">(</span><em>slaveId</em>, <em>port</em>, <em>baudrate</em>, <em>numBoards=1</em>, <em>timeout=0.05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DacMaster.html#DacMaster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DacMaster.DacMaster" title="Permalink to this definition">¶</a></dt>
-<dd><p>This class defines methods to send and receive commands and data via Modbus RTU
-RS485 to a slave that talks to a DAC using an SPI interface, to be used with
-DacSlave.ino</p>
+<dd><p>This class defines methods to send and receive commands to the slave.</p>
+<p>The constructor instantiates a DacMaster using the Modbus RTU protocol over RS458.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>slaveId</strong> – The ID number to use for the slave</li>
+<li><strong>port</strong> – The serial port to use</li>
+<li><strong>baudrate</strong> – Compatible baud rates: 4800, 9600, 14400, 19200, 28800</li>
+<li><strong>timeout</strong> – The max. length of time to wait for a slave to respond (s)</li>
+<li><strong>numBoards</strong> – The number of DAC boards hooked up to the slave</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="DacMaster.DacMaster.address">
 <code class="descname">address</code><span class="sig-paren">(</span><em>dacChan</em>, <em>dacNum</em>, <em>boardNum=0</em>, <em>sipmChan=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DacMaster.html#DacMaster.address"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DacMaster.DacMaster.address" title="Permalink to this definition">¶</a></dt>

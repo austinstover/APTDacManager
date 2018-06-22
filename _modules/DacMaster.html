@@ -145,7 +145,7 @@
   <h1>Source code for DacMaster</h1><div class="highlight"><pre>
 <span></span><span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">This program defines a class to control DACs hosted by an Arduino slave via the Modbus</span>
-<span class="sd">RTU RS485 protocol for the APT experiment CERN prototype</span>
+<span class="sd">RTU RS485 protocol for the APT experiment CERN prototype.</span>
 
 <span class="sd">..  moduleauthor:: Austin Stover &lt;stover.a@wustl.edu&gt;</span>
 <span class="sd">    :date: June 2018</span>
@@ -154,20 +154,18 @@
 <span class="kn">import</span> <span class="nn">minimalmodbus</span> <span class="k">as</span> <span class="nn">mb</span>
 
 <div class="viewcode-block" id="DacMaster"><a class="viewcode-back" href="../index.html#DacMaster.DacMaster">[docs]</a><span class="k">class</span> <span class="nc">DacMaster</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;This class defines methods to send and receive commands and data via Modbus RTU</span>
-<span class="sd">    RS485 to a slave that talks to a DAC using an SPI interface, to be used with</span>
-<span class="sd">    DacSlave.ino</span>
+    <span class="sd">&quot;&quot;&quot;This class defines methods to send and receive commands to the slave.</span>
+
+<span class="sd">    The constructor instantiates a DacMaster using the Modbus RTU protocol over RS458.</span>
+<span class="sd">    </span>
+<span class="sd">    :param slaveId: The ID number to use for the slave</span>
+<span class="sd">    :param port: The serial port to use</span>
+<span class="sd">    :param baudrate: Compatible baud rates: 4800, 9600, 14400, 19200, 28800</span>
+<span class="sd">    :param timeout: The max. length of time to wait for a slave to respond (s)</span>
+<span class="sd">    :param numBoards: The number of DAC boards hooked up to the slave</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slaveId</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">baudrate</span><span class="p">,</span> <span class="n">numBoards</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Instantiates a DacMaster using the Modbus RTU protocol over RS458</span>
-<span class="sd">        </span>
-<span class="sd">        :param slaveId: The ID number to use for the slave</span>
-<span class="sd">        :param port: The serial port to use</span>
-<span class="sd">        :param baudrate: Compatible baud rates: 4800, 9600, 14400, 19200, 28800</span>
-<span class="sd">        :param timeout: The max. length of time to wait for a slave to respond (s)</span>
-<span class="sd">        :param numBoards: The number of DAC boards hooked up to the slave</span>
-<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">mb</span><span class="o">.</span><span class="n">BAUDRATE</span> <span class="o">=</span> <span class="n">baudrate</span>
         <span class="n">mb</span><span class="o">.</span><span class="n">TIMEOUT</span> <span class="o">=</span> <span class="n">timeout</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">slave</span> <span class="o">=</span> <span class="n">mb</span><span class="o">.</span><span class="n">Instrument</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">slaveId</span><span class="p">)</span>
