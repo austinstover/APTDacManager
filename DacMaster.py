@@ -21,7 +21,7 @@ class DacMaster:
     """
     
     def __init__(self, slaveId, port, baudrate, numBoards=1, timeout=0.05):
-                mb.BAUDRATE = baudrate
+        mb.BAUDRATE = baudrate
         mb.TIMEOUT = timeout
         self.slave = mb.Instrument(port, slaveId)
         self.numBoards = numBoards
