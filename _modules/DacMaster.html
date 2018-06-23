@@ -260,7 +260,10 @@
         <span class="k">return</span> <span class="n">rawV</span> <span class="k">if</span> <span class="n">rawV</span> <span class="o">&lt;</span> <span class="mi">4096</span> <span class="k">else</span> <span class="mi">4095</span> <span class="c1">#rawV must be a 12 bit number or less</span></div></div>
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;A DacMaster Demo Program: This updates the specified DAC with the voltage, and then</span>
+    <span class="sd">&quot;&quot;&quot;A DacMaster Demo Program: This updates the specified DAC with the</span>
+<span class="sd">    voltage, powers on the analog output to reach that voltage, and then reads</span>
+<span class="sd">    back the voltage both in the holding register on the slave and the input</span>
+<span class="sd">    register on the DAC.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">slaveId</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">port</span> <span class="o">=</span> <span class="s1">&#39;COM4&#39;</span>
