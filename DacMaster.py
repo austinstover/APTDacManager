@@ -11,7 +11,7 @@ import minimalmodbus as mb
 class DacMaster:
     """This class defines methods to send and receive commands to the slave.
 
-    The constructor instantiates a DacMaster using the Modbus RTU protocol over RS458.
+    The constructor instantiates a DacMaster using the Modbus RTU protocol over RS485.
     
     :param slaveId: The ID number to use for the slave
     :param port: The serial port to use
