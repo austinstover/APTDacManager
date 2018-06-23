@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Welcome to APTDacManager’s documentation! &mdash; APTDacManager 0.9.1 documentation</title>
+  <title>APTDacManager’s documentation &mdash; APTDacManager 0.9.1 documentation</title>
   
 
   
@@ -82,7 +82,12 @@
             
               <!-- Local TOC -->
               <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">Welcome to APTDacManager’s documentation!</a></li>
+<li><a class="reference internal" href="#">APTDacManager’s documentation</a></li>
+<li><a class="reference internal" href="#module-DacMaster">CPU Master Code</a></li>
+<li><a class="reference internal" href="#arduino-slave-code-src">Arduino Slave Code <code class="docutils literal notranslate"><span class="pre">[src]</span></code></a><ul>
+<li><a class="reference internal" href="#source-code-for-dacslave">Source code for DacSlave</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 </div>
@@ -129,7 +134,7 @@
     
       <li><a href="#">Docs</a> &raquo;</li>
         
-      <li>Welcome to APTDacManager’s documentation!</li>
+      <li>APTDacManager’s documentation</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -148,12 +153,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="welcome-to-aptdacmanager-s-documentation">
-<h1>Welcome to APTDacManager’s documentation!<a class="headerlink" href="#welcome-to-aptdacmanager-s-documentation" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="aptdacmanager-s-documentation">
+<h1>APTDacManager’s documentation<a class="headerlink" href="#aptdacmanager-s-documentation" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 </div>
-<span class="target" id="module-DacMaster"></span><p>This program defines a class to control DACs hosted by an Arduino slave via the Modbus
-RTU RS485 protocol for the APT experiment CERN prototype.</p>
+</div>
+<div class="section" id="module-DacMaster">
+<span id="cpu-master-code"></span><h1>CPU Master Code<a class="headerlink" href="#module-DacMaster" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="DacMaster.DacMaster">
 <em class="property">class </em><code class="descclassname">DacMaster.</code><code class="descname">DacMaster</code><span class="sig-paren">(</span><em>slaveId</em>, <em>port</em>, <em>baudrate</em>, <em>numBoards=1</em>, <em>timeout=0.05</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DacMaster.html#DacMaster"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DacMaster.DacMaster" title="Permalink to this definition">¶</a></dt>
@@ -216,8 +222,8 @@ RTU RS485 protocol for the APT experiment CERN prototype.</p>
 <dl class="staticmethod">
 <dt id="DacMaster.DacMaster.convertToRawV">
 <em class="property">static </em><code class="descname">convertToRawV</code><span class="sig-paren">(</span><em>actualV</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/DacMaster.html#DacMaster.convertToRawV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#DacMaster.DacMaster.convertToRawV" title="Permalink to this definition">¶</a></dt>
-<dd><p>Converts a floating-point voltage to its raw 12-bit value to input into many
-DacMaster functions
+<dd><p>Converts a floating-point voltage (in volts, between 0 and 60 inclusive) to its
+raw 12-bit value to input into many DacMaster functions
 :param actualV: The floating-point voltage value to convert
 :returns: The 12-bit raw voltage equivalent of actualV</p>
 </dd></dl>
@@ -326,6 +332,536 @@ output the voltage.</p>
 
 </dd></dl>
 
+</div>
+<div class="section" id="arduino-slave-code-src">
+<h1>Arduino Slave Code <a class="reference internal" href="#src"><span class="std std-ref">[src]</span></a><a class="headerlink" href="#arduino-slave-code-src" title="Permalink to this headline">¶</a></h1>
+<p><p>This program communicates with a computer running DacMaster.py using the Modbus RS485 protocol to manage AD5504 DACs for the APT experiment CERN prototype </p>
+<dl class="docutils">
+<dt><strong>Author</strong></dt>
+<dd>Austin Stover </dd>
+<dt><strong>Date</strong></dt>
+<dd>June 2018</dd>
+</dl>
+</p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Functions</p>
+<dl class="function">
+<dt id="_CPPv35slave7Serial18SLAVE_ID6TX_PIN">
+<span id="_CPPv25slave7Serial18SLAVE_ID6TX_PIN"></span><span id="slave__Serial1.SLAVE_ID.TX_PIN"></span><span class="target" id="_dac_slave_8ino_1a906da6a904be5d010101470d1e7c3525"></span>Modbus <code class="descname">slave</code><span class="sig-paren">(</span>Serial1, <a class="reference internal" href="#_CPPv38SLAVE_ID" title="SLAVE_ID">SLAVE_ID</a>, <a class="reference internal" href="#_CPPv36TX_PIN" title="TX_PIN">TX_PIN</a><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv35slave7Serial18SLAVE_ID6TX_PIN" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv35setupv">
+<span id="_CPPv25setupv"></span><span id="setup"></span><span class="target" id="_dac_slave_8ino_1a4fc01d736fe50cf5b977f755b675f11d"></span>void <code class="descname">setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv35setupv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv34loopv">
+<span id="_CPPv24loopv"></span><span id="loop"></span><span class="target" id="_dac_slave_8ino_1afe461d27b9c48d5921c00d521181f12f"></span>void <code class="descname">loop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv34loopv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv38writeReg7uint8_t8uint16_t8uint16_t">
+<span id="_CPPv28writeReg7uint8_t8uint16_t8uint16_t"></span><span id="writeReg__uint8_t.uint16_t.uint16_t"></span><span class="target" id="_dac_slave_8ino_1a7bf7df68a10e778a75ebf8db83a3386e"></span>uint8_t <code class="descname">writeReg</code><span class="sig-paren">(</span>uint8_t <em>fc</em>, uint16_t <em>address</em>, uint16_t <em>length</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv38writeReg7uint8_t8uint16_t8uint16_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Callback function for a single holding register write (input registers can only be read) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv37readReg7uint8_t8uint16_t8uint16_t">
+<span id="_CPPv27readReg7uint8_t8uint16_t8uint16_t"></span><span id="readReg__uint8_t.uint16_t.uint16_t"></span><span class="target" id="_dac_slave_8ino_1a56cc6a249dd596e73f69f5cd1fd1ec46"></span>uint8_t <code class="descname">readReg</code><span class="sig-paren">(</span>uint8_t <em>fc</em>, uint16_t <em>address</em>, uint16_t <em>length</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv37readReg7uint8_t8uint16_t8uint16_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Callback function for input/holding register reads. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv39writeCoil7uint8_t8uint16_t8uint16_t">
+<span id="_CPPv29writeCoil7uint8_t8uint16_t8uint16_t"></span><span id="writeCoil__uint8_t.uint16_t.uint16_t"></span><span class="target" id="_dac_slave_8ino_1a36e806713fcc156b4573b0cb882851b2"></span>uint8_t <code class="descname">writeCoil</code><span class="sig-paren">(</span>uint8_t <em>fc</em>, uint16_t <em>address</em>, uint16_t <em>length</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv39writeCoil7uint8_t8uint16_t8uint16_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Callback function for writing single bits to turn on/off DAC channel analog outputs. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv38readCoil7uint8_t8uint16_t8uint16_t">
+<span id="_CPPv28readCoil7uint8_t8uint16_t8uint16_t"></span><span id="readCoil__uint8_t.uint16_t.uint16_t"></span><span class="target" id="_dac_slave_8ino_1a511af1d314c9b239fc86b50e6acdc505"></span>uint8_t <code class="descname">readCoil</code><span class="sig-paren">(</span>uint8_t <em>fc</em>, uint16_t <em>address</em>, uint16_t <em>length</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv38readCoil7uint8_t8uint16_t8uint16_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Callback function for reading single bits returns the DAC channel power boolean in the coil. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv37updateV8uint16_t8uint16_t">
+<span id="_CPPv27updateV8uint16_t8uint16_t"></span><span id="updateV__uint16_t.uint16_t"></span><span class="target" id="_dac_slave_8ino_1a41a295870aa29a653fcbc2f59d5401fb"></span>void <code class="descname">updateV</code><span class="sig-paren">(</span>uint16_t <em>newV</em>, uint16_t <em>address</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv37updateV8uint16_t8uint16_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Updates the voltage in the DAC channel input and DAC register. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">newV</span></code>: The new raw voltage to command </li>
+<li><code class="docutils literal notranslate"><span class="pre">address</span></code>: The DAC channel address </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv34getV8uint16_t">
+<span id="_CPPv24getV8uint16_t"></span><span id="getV__uint16_t"></span><span class="target" id="_dac_slave_8ino_1a59fcaf284474e68a7a34ece1f1534361"></span>uint16_t <code class="descname">getV</code><span class="sig-paren">(</span>uint16_t <em>address</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv34getV8uint16_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Returns the DAC channel voltage currently in the holding register. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>The raw voltage currently stored in the holding register </dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv35powerb8uint16_t">
+<span id="_CPPv25powerb8uint16_t"></span><span id="power__b.uint16_t"></span><span class="target" id="_dac_slave_8ino_1a02a18565224edfd6d9855f3a83769654"></span>void <code class="descname">power</code><span class="sig-paren">(</span>bool <em>powerOn</em>, uint16_t <em>address</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv35powerb8uint16_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Powers up or down a DAC analog channel. </p>
+<p><dl class="docutils">
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">powerOn</span></code>: True if power is desired; false if not </li>
+<li><code class="docutils literal notranslate"><span class="pre">address</span></code>: The DAC channel address </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv38getPower8uint16_t">
+<span id="_CPPv28getPower8uint16_t"></span><span id="getPower__uint16_t"></span><span class="target" id="_dac_slave_8ino_1aea8a6b03a2536d3f3305eb7846e14cb8"></span>bool <code class="descname">getPower</code><span class="sig-paren">(</span>uint16_t <em>address</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv38getPower8uint16_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Returns whether the DAC channel is powered on or off based on its control byte. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>True if on; false if off </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">address</span></code>: The DAC channel address </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv35readV8uint16_t">
+<span id="_CPPv25readV8uint16_t"></span><span id="readV__uint16_t"></span><span class="target" id="_dac_slave_8ino_1a5044f3706ffd801ef636d38956019591"></span>uint16_t <code class="descname">readV</code><span class="sig-paren">(</span>uint16_t <em>address</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv35readV8uint16_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Reads input register voltage from the specified channel. </p>
+<p>NOTE: This may not return the correct value from the input register, since the SPI protocol used by the Arduino and Dac differ. Thus this method should only be used to check that a value has been loaded into the input register. <dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>The raw voltage read from the DAC channel’s input register </dd>
+<dt><strong>Parameters</strong></dt>
+<dd><ul class="breatheparameterlist first last simple">
+<li><code class="docutils literal notranslate"><span class="pre">address</span></code>: The DAC channel address </li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Variables</p>
+<dl class="member">
+<dt id="_CPPv38SLAVE_ID">
+<span id="_CPPv28SLAVE_ID"></span><span id="SLAVE_ID__iC"></span><span class="target" id="_dac_slave_8ino_1a2286162d279f2958046080d0a703332e"></span><em class="property">const</em> int <code class="descname">SLAVE_ID</code> = 0<a class="headerlink" href="#_CPPv38SLAVE_ID" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This specifies which Arduino to which the master will talk. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv39BAUD_RATE">
+<span id="_CPPv29BAUD_RATE"></span><span id="BAUD_RATE__iC"></span><span class="target" id="_dac_slave_8ino_1ae4dbf0330ab067f9cb5f59bcc9caed3e"></span><em class="property">const</em> int <code class="descname">BAUD_RATE</code> = 9600<a class="headerlink" href="#_CPPv39BAUD_RATE" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv36TX_PIN">
+<span id="_CPPv26TX_PIN"></span><span id="TX_PIN__iC"></span><span class="target" id="_dac_slave_8ino_1a6fafb8db4d2fc94a30911f0aa29ed94d"></span><em class="property">const</em> int <code class="descname">TX_PIN</code> = 2<a class="headerlink" href="#_CPPv36TX_PIN" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This is the DE/RE pin for the Serial to RS485 converter. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv38LDAC_PIN">
+<span id="_CPPv28LDAC_PIN"></span><span id="LDAC_PIN__iC"></span><span class="target" id="_dac_slave_8ino_1ad569f9ededde76d4c7e54a543ab38dea"></span><em class="property">const</em> int <code class="descname">LDAC_PIN</code> = 47<a class="headerlink" href="#_CPPv38LDAC_PIN" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>This pin is pulsed to move data from input to DAC register. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv37CLR_PIN">
+<span id="_CPPv27CLR_PIN"></span><span id="CLR_PIN__iC"></span><span class="target" id="_dac_slave_8ino_1a1b393c1b2c27de5c000275b89dfb97f2"></span><em class="property">const</em> int <code class="descname">CLR_PIN</code> = 45<a class="headerlink" href="#_CPPv37CLR_PIN" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv314NUM_SIPM_CHANS">
+<span id="_CPPv214NUM_SIPM_CHANS"></span><span id="NUM_SIPM_CHANS__uint8_tC"></span><span class="target" id="_dac_slave_8ino_1a89b27f0b18148ae25ef7084d87fb67da"></span><em class="property">const</em> uint8_t <code class="descname">NUM_SIPM_CHANS</code> = 1<a class="headerlink" href="#_CPPv314NUM_SIPM_CHANS" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv310NUM_BOARDS">
+<span id="_CPPv210NUM_BOARDS"></span><span id="NUM_BOARDS__uint8_tC"></span><span class="target" id="_dac_slave_8ino_1afa883085cd367230654e34281c1b2697"></span><em class="property">const</em> uint8_t <code class="descname">NUM_BOARDS</code> = 1<a class="headerlink" href="#_CPPv310NUM_BOARDS" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>The number of boards per SiPM channel. </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv313PIN_ARRAY_LEN">
+<span id="_CPPv213PIN_ARRAY_LEN"></span><span id="PIN_ARRAY_LEN__uint8_tC"></span><span class="target" id="_dac_slave_8ino_1af214ceb4d3eee529dc5c6bf4e876c8cb"></span><em class="property">const</em> uint8_t <code class="descname">PIN_ARRAY_LEN</code> = <a class="reference internal" href="#_dac_slave_8ino_1a89b27f0b18148ae25ef7084d87fb67da"><span class="std std-ref">NUM_SIPM_CHANS</span></a>*<a class="reference internal" href="#_dac_slave_8ino_1afa883085cd367230654e34281c1b2697"><span class="std std-ref">NUM_BOARDS</span></a>*2<a class="headerlink" href="#_CPPv313PIN_ARRAY_LEN" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>PIN_ARRAY[] relates the DAC channel chip select outputs to specific Arduino pins. </p>
+<p>There is 1 pin per DAC and 2 DACs per board, NUM_BOARDS per SiPM channel, and NUM_SIPM_CHANS SiPM channels overall. The first 2 pins in the array therefore denote DAC pins (chip selects) 0 and 1 on board 0. The next two pins are 0 and 1 on board 1, etc. as illustrated below, where n=NUM_BOARDS. The element index is related to these parameters by the following equation: vIndex = address = NUM_BOARDS*4*2*sipmChan + 4*2*boardNum + 4*dacNum + dacChan </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv39PIN_ARRAY">
+<span id="_CPPv29PIN_ARRAY"></span><span id="PIN_ARRAY__uint8_tCA"></span><span class="target" id="_dac_slave_8ino_1a0ab56e668bc6014f059d49c540f2ac83"></span><em class="property">const</em> uint8_t <code class="descname">PIN_ARRAY</code>[<code class="descname">PIN_ARRAY_LEN</code>] = {44,46}<a class="headerlink" href="#_CPPv39PIN_ARRAY" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv317CONTROL_ARRAY_LEN">
+<span id="_CPPv217CONTROL_ARRAY_LEN"></span><span id="CONTROL_ARRAY_LEN__uint16_tC"></span><span class="target" id="_dac_slave_8ino_1ab2c3af83cde0f260949e45218542d6da"></span><em class="property">const</em> uint16_t <code class="descname">CONTROL_ARRAY_LEN</code> = <a class="reference internal" href="#_dac_slave_8ino_1a89b27f0b18148ae25ef7084d87fb67da"><span class="std std-ref">NUM_SIPM_CHANS</span></a>*<a class="reference internal" href="#_dac_slave_8ino_1afa883085cd367230654e34281c1b2697"><span class="std std-ref">NUM_BOARDS</span></a>*2<a class="headerlink" href="#_CPPv317CONTROL_ARRAY_LEN" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv312controlArray">
+<span id="_CPPv212controlArray"></span><span id="controlArray__uint16_tA"></span><span class="target" id="_dac_slave_8ino_1a348f0a199ba827cc63b1e45978b22e19"></span>uint16_t <code class="descname">controlArray</code>[<code class="descname">CONTROL_ARRAY_LEN</code>]<a class="headerlink" href="#_CPPv312controlArray" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>controlArray[] elements are numbered the same way as PIN_ARRAY[] elements </p>
+<p>controlArray[i] denotes the same DAC channel as PIN_ARRAY[i]. The element index is related to its parameters by the following equation (using integer division): cIndex = address / 4 = NUM_BOARDS*2*sipmChan + 2*boardNum + dacNum </p>
+</dd></dl>
+
+<dl class="member">
+<dt id="_CPPv36spiSet">
+<span id="_CPPv26spiSet"></span><span id="spiSet__SPISettingsC"></span><span class="target" id="_dac_slave_8ino_1abcc7a58b7e1052a93f6a2f3b31eb0528"></span><em class="property">const</em> SPISettings <code class="descname">spiSet</code> = {9000000, MSBFIRST, SPI_MODE0}<a class="headerlink" href="#_CPPv36spiSet" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv39DAC_V_LEN">
+<span id="_CPPv29DAC_V_LEN"></span><span id="DAC_V_LEN__uint16_tC"></span><span class="target" id="_dac_slave_8ino_1aa898f287c9210a4f0d23c5d1be888d58"></span><em class="property">const</em> uint16_t <code class="descname">DAC_V_LEN</code> = <a class="reference internal" href="#_dac_slave_8ino_1a89b27f0b18148ae25ef7084d87fb67da"><span class="std std-ref">NUM_SIPM_CHANS</span></a>*<a class="reference internal" href="#_dac_slave_8ino_1afa883085cd367230654e34281c1b2697"><span class="std std-ref">NUM_BOARDS</span></a>*2*4<a class="headerlink" href="#_CPPv39DAC_V_LEN" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="member">
+<dt id="_CPPv34dacV">
+<span id="_CPPv24dacV"></span><span id="dacV__uint16_tA"></span><span class="target" id="_dac_slave_8ino_1afe00b59e8d1fe42357d5a17fd7608f9b"></span>uint16_t <code class="descname">dacV</code>[<code class="descname">DAC_V_LEN</code>] = { 0 }<a class="headerlink" href="#_CPPv34dacV" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>dacV[] holds the voltage for each DAC channel </p>
+<p>There are 4 times as many entries in this array as there are in PIN_ARRAY[] or controlArray[], since there are 4 channels per DAC. There are therefore 4 elements per DAC number, as illustrated. To get the controlArray element from the dacV element, just integer divide by 4. The DAC channel can also be determined from the dacV element by performing modulo 4 on the element #. </p>
+</dd></dl>
+
+</div>
+<div class="section" id="source-code-for-dacslave">
+<span id="src"></span><h2>Source code for DacSlave<a class="headerlink" href="#source-code-for-dacslave" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="cm">/**</span>
+<span class="cm"> * @file DacSlave.ino</span>
+<span class="cm"> * @author Austin Stover</span>
+<span class="cm"> * @date June 2018</span>
+<span class="cm"> * </span>
+<span class="cm"> * This program communicates with a computer running DacMaster.py using the Modbus </span>
+<span class="cm"> * RS485 protocol to manage AD5504 DACs for the APT experiment CERN prototype</span>
+<span class="cm"> */</span>
+
+<span class="cp">#include</span> <span class="cpf">&lt;SPI.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;ModbusSlave.h&gt;</span><span class="cp"></span>
+
+<span class="k">const</span> <span class="kt">int</span> <span class="n">SLAVE_ID</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">///&lt; This specifies which Arduino to which the master will talk</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">BAUD_RATE</span> <span class="o">=</span> <span class="mi">9600</span><span class="p">;</span>
+
+<span class="k">const</span> <span class="kt">int</span> <span class="n">TX_PIN</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span> <span class="c1">///&lt; This is the DE/RE pin for the Serial to RS485 converter</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">LDAC_PIN</span> <span class="o">=</span> <span class="mi">47</span><span class="p">;</span> <span class="c1">///&lt; This pin is pulsed to move data from input to DAC register</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">CLR_PIN</span> <span class="o">=</span> <span class="mi">45</span><span class="p">;</span>
+
+<span class="k">const</span> <span class="kt">uint8_t</span> <span class="n">NUM_SIPM_CHANS</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">uint8_t</span> <span class="n">NUM_BOARDS</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="c1">///&lt; The number of boards per SiPM channel</span>
+    
+<span class="cm">/**</span>
+<span class="cm"> * @brief PIN_ARRAY[] relates the DAC channel chip select outputs to specific Arduino pins.</span>
+<span class="cm"> * </span>
+<span class="cm"> * There is 1 pin per DAC and 2 DACs per board, NUM_BOARDS per SiPM channel, and</span>
+<span class="cm"> * NUM_SIPM_CHANS SiPM channels overall. The first 2 pins in the array therefore denote </span>
+<span class="cm"> * DAC pins (chip selects) 0 and 1 on board 0. The next two pins are 0 and 1 on board 1,</span>
+<span class="cm"> * etc. as illustrated below, where n=NUM_BOARDS. The element index is related to these </span>
+<span class="cm"> * parameters by the following equation:</span>
+<span class="cm"> * vIndex = address = NUM_BOARDS*4*2*sipmChan + 4*2*boardNum + 4*dacNum + dacChan</span>
+<span class="cm">*/</span>
+<span class="k">const</span> <span class="kt">uint8_t</span> <span class="n">PIN_ARRAY_LEN</span> <span class="o">=</span> <span class="n">NUM_SIPM_CHANS</span><span class="o">*</span><span class="n">NUM_BOARDS</span><span class="o">*</span><span class="mi">2</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">uint8_t</span> <span class="n">PIN_ARRAY</span><span class="p">[</span><span class="n">PIN_ARRAY_LEN</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">44</span><span class="p">,</span><span class="mi">46</span><span class="p">};</span>
+<span class="c1">// Element index:                         0  1  2  3  4  5 ... </span>
+<span class="c1">// DAC Number:                            0  1  0  1  0  1 ... 0  1  0  1</span>
+<span class="c1">// Board Number:                          0     1     2    ... n     n+1</span>
+<span class="c1">// SiPM Channel:                          0                    1</span>
+
+<span class="k">const</span> <span class="kt">uint16_t</span> <span class="n">CONTROL_ARRAY_LEN</span> <span class="o">=</span> <span class="n">NUM_SIPM_CHANS</span><span class="o">*</span><span class="n">NUM_BOARDS</span><span class="o">*</span><span class="mi">2</span><span class="p">;</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * @brief controlArray[] elements are numbered the same way as PIN_ARRAY[] elements</span>
+<span class="cm"> * </span>
+<span class="cm"> * controlArray[i] denotes the same DAC channel as PIN_ARRAY[i]. The element index is</span>
+<span class="cm"> * related to its parameters by the following equation (using integer division):</span>
+<span class="cm"> * cIndex = address / 4 = NUM_BOARDS*2*sipmChan + 2*boardNum + dacNum</span>
+<span class="cm"> */</span>
+<span class="kt">uint16_t</span> <span class="n">controlArray</span><span class="p">[</span><span class="n">CONTROL_ARRAY_LEN</span><span class="p">];</span> <span class="c1">//Saves the states of the control registers</span>
+    
+<span class="k">const</span> <span class="n">SPISettings</span> <span class="n">spiSet</span><span class="p">{</span><span class="mi">9000000</span><span class="p">,</span> <span class="n">MSBFIRST</span><span class="p">,</span> <span class="n">SPI_MODE0</span><span class="p">};</span>
+
+
+<span class="k">const</span> <span class="kt">uint16_t</span> <span class="n">DAC_V_LEN</span> <span class="o">=</span> <span class="n">NUM_SIPM_CHANS</span><span class="o">*</span><span class="n">NUM_BOARDS</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="mi">4</span><span class="p">;</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * @brief dacV[] holds the voltage for each DAC channel</span>
+<span class="cm"> * </span>
+<span class="cm"> * There are 4 times as many entries in this array as there are in PIN_ARRAY[] or </span>
+<span class="cm"> * controlArray[], since there are 4 channels per DAC. There are therefore 4 elements</span>
+<span class="cm"> * per DAC number, as illustrated. To get the controlArray element from the dacV</span>
+<span class="cm"> * element, just integer divide by 4. The DAC channel can also be determined from the</span>
+<span class="cm"> * dacV element by performing modulo 4 on the element #.</span>
+<span class="cm"> */</span>
+<span class="kt">uint16_t</span> <span class="n">dacV</span><span class="p">[</span><span class="n">DAC_V_LEN</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span> <span class="mi">0</span> <span class="p">};</span> <span class="c1">//Init all Vs to 0</span>
+<span class="c1">// Element index:            0  1  2  3  4  5  6  7  8 ...</span>
+<span class="c1">// DAC Channel:              0  1  2  3  0  1  2  3  0 ...</span>
+<span class="c1">// DAC Number:               0           1           0 ...</span>
+<span class="c1">// Board Number:             0                       1 ...</span>
+<span class="c1">// SiPM Channel:             0                         ...</span>
+
+<span class="c1">//Connect the RS485 communication line to the below Serial port</span>
+<span class="n">Modbus</span> <span class="nf">slave</span><span class="p">(</span><span class="n">Serial1</span><span class="p">,</span> <span class="n">SLAVE_ID</span><span class="p">,</span> <span class="n">TX_PIN</span><span class="p">);</span> 
+
+<span class="kt">void</span> <span class="nf">setup</span><span class="p">()</span>
+<span class="p">{</span>
+  <span class="c1">//For serial monitor output. Disable print statements after debugging to speed up program</span>
+  <span class="c1">//Serial.begin(115200); </span>
+
+  <span class="n">Serial1</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="n">BAUD_RATE</span><span class="p">,</span> <span class="n">SERIAL_8N1</span><span class="p">);</span>
+  <span class="n">slave</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="n">BAUD_RATE</span><span class="p">);</span>
+
+  <span class="c1">//Initialize TX_PIN to receive messages</span>
+  <span class="n">pinMode</span><span class="p">(</span><span class="n">TX_PIN</span><span class="p">,</span> <span class="n">OUTPUT</span><span class="p">);</span>
+  <span class="n">digitalWrite</span><span class="p">(</span><span class="n">TX_PIN</span><span class="p">,</span> <span class="n">LOW</span><span class="p">);</span>
+  <span class="c1">//Initialize other pins</span>
+  <span class="n">pinMode</span><span class="p">(</span><span class="n">LDAC_PIN</span><span class="p">,</span> <span class="n">OUTPUT</span><span class="p">);</span>
+  <span class="n">digitalWrite</span><span class="p">(</span><span class="n">LDAC_PIN</span><span class="p">,</span> <span class="n">HIGH</span><span class="p">);</span>
+  <span class="n">pinMode</span><span class="p">(</span><span class="n">CLR_PIN</span><span class="p">,</span> <span class="n">OUTPUT</span><span class="p">);</span>
+  <span class="n">digitalWrite</span><span class="p">(</span><span class="n">CLR_PIN</span><span class="p">,</span> <span class="n">HIGH</span><span class="p">);</span>
+  
+  <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">CONTROL_ARRAY_LEN</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+  <span class="p">{</span> <span class="c1">//Initialize control register commands to all Dacs off</span>
+    <span class="n">controlArray</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="n">b0111000000000000</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">PIN_ARRAY_LEN</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+  <span class="p">{</span> <span class="c1">//Initialize chip select pins</span>
+    <span class="n">pinMode</span><span class="p">(</span><span class="n">PIN_ARRAY</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">OUTPUT</span><span class="p">);</span>
+    <span class="n">digitalWrite</span><span class="p">(</span><span class="n">PIN_ARRAY</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">HIGH</span><span class="p">);</span>
+  <span class="p">}</span>
+  
+  <span class="n">SPI</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+
+  <span class="c1">//Callback handler function declarations</span>
+  <span class="n">slave</span><span class="p">.</span><span class="n">cbVector</span><span class="p">[</span><span class="n">CB_READ_COILS</span><span class="p">]</span> <span class="o">=</span> <span class="n">readCoil</span><span class="p">;</span>
+  <span class="n">slave</span><span class="p">.</span><span class="n">cbVector</span><span class="p">[</span><span class="n">CB_WRITE_COILS</span><span class="p">]</span> <span class="o">=</span> <span class="n">writeCoil</span><span class="p">;</span>
+  <span class="n">slave</span><span class="p">.</span><span class="n">cbVector</span><span class="p">[</span><span class="n">CB_READ_REGISTERS</span><span class="p">]</span> <span class="o">=</span> <span class="n">readReg</span><span class="p">;</span>
+  <span class="n">slave</span><span class="p">.</span><span class="n">cbVector</span><span class="p">[</span><span class="n">CB_WRITE_REGISTERS</span><span class="p">]</span> <span class="o">=</span> <span class="n">writeReg</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">loop</span><span class="p">()</span>
+<span class="p">{</span>
+  <span class="c1">//Runs the Modbus input/output and associated actions (detailed in the modbus callback functions)</span>
+  <span class="n">slave</span><span class="p">.</span><span class="n">poll</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="c1">// ###################################################################</span>
+<span class="c1">// #################### MODBUS CALLBACK FUNCTIONS ####################</span>
+<span class="c1">// ###################################################################</span>
+<span class="cm">/*</span>
+<span class="cm"> * These functions will get called when a modbus message is received with the</span>
+<span class="cm"> * function codes associated with their cbVector[]. DO NOT CALL THESE FUNCTIONS.</span>
+<span class="cm"> * They are to be called within the ModbusSlave library only.</span>
+<span class="cm"> */</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Callback function for a single holding register write (input registers can only be read)</span>
+<span class="cm"> */</span>
+<span class="kt">uint8_t</span> <span class="nf">writeReg</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="n">fc</span><span class="p">,</span> <span class="kt">uint16_t</span> <span class="n">address</span><span class="p">,</span> <span class="kt">uint16_t</span> <span class="n">length</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="k">if</span><span class="p">(</span><span class="n">fc</span> <span class="o">==</span> <span class="n">FC_WRITE_REGISTER</span><span class="p">)</span> <span class="c1">//Writing a holding register updates the voltage on a DAC channel</span>
+  <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">address</span> <span class="o">&lt;</span> <span class="n">DAC_V_LEN</span><span class="p">)</span>
+    <span class="p">{</span>
+      <span class="n">updateV</span><span class="p">(</span><span class="n">slave</span><span class="p">.</span><span class="n">readRegisterFromBuffer</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">address</span><span class="p">);</span>
+      <span class="k">return</span> <span class="n">STATUS_OK</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">else</span>
+    <span class="k">return</span> <span class="n">STATUS_ILLEGAL_FUNCTION</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Callback function for input/holding register reads</span>
+<span class="cm"> */</span>
+<span class="kt">uint8_t</span> <span class="nf">readReg</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="n">fc</span><span class="p">,</span> <span class="kt">uint16_t</span> <span class="n">address</span><span class="p">,</span> <span class="kt">uint16_t</span> <span class="n">length</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="k">if</span><span class="p">(</span><span class="n">fc</span> <span class="o">==</span> <span class="n">FC_READ_HOLDING_REGISTERS</span><span class="p">)</span> <span class="c1">//Reading a holding register returns the voltage in the register</span>
+  <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">address</span> <span class="o">&lt;</span> <span class="n">DAC_V_LEN</span><span class="p">)</span>
+    <span class="p">{</span>
+      <span class="n">slave</span><span class="p">.</span><span class="n">writeRegisterToBuffer</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">getV</span><span class="p">(</span><span class="n">address</span><span class="p">));</span>
+      <span class="k">return</span> <span class="n">STATUS_OK</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+      <span class="k">return</span> <span class="n">STATUS_ILLEGAL_DATA_ADDRESS</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">fc</span> <span class="o">==</span> <span class="n">FC_READ_INPUT_REGISTERS</span><span class="p">)</span>
+  <span class="p">{</span> <span class="c1">//Reading an input register reads the approximate voltage in a DAC input register</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">address</span> <span class="o">&lt;</span> <span class="n">DAC_V_LEN</span><span class="p">)</span>
+    <span class="p">{</span>
+      <span class="n">slave</span><span class="p">.</span><span class="n">writeRegisterToBuffer</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">readV</span><span class="p">(</span><span class="n">address</span><span class="p">));</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+      <span class="n">STATUS_ILLEGAL_DATA_ADDRESS</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">else</span>
+    <span class="k">return</span> <span class="n">STATUS_ILLEGAL_FUNCTION</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Callback function for writing single bits to turn on/off DAC channel analog outputs</span>
+<span class="cm"> */</span>
+<span class="kt">uint8_t</span> <span class="nf">writeCoil</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="n">fc</span><span class="p">,</span> <span class="kt">uint16_t</span> <span class="n">address</span><span class="p">,</span> <span class="kt">uint16_t</span> <span class="n">length</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="k">if</span><span class="p">(</span><span class="n">fc</span> <span class="o">==</span> <span class="n">FC_WRITE_COIL</span><span class="p">)</span>
+  <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">address</span> <span class="o">&lt;</span> <span class="n">DAC_V_LEN</span><span class="p">)</span>
+    <span class="p">{</span>
+      <span class="n">power</span><span class="p">(</span><span class="n">slave</span><span class="p">.</span><span class="n">readCoilFromBuffer</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">address</span><span class="p">);</span>
+      <span class="k">return</span> <span class="n">STATUS_OK</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+      <span class="k">return</span> <span class="n">STATUS_ILLEGAL_DATA_ADDRESS</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">else</span>
+    <span class="k">return</span> <span class="n">STATUS_ILLEGAL_FUNCTION</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Callback function for reading single bits returns the DAC channel power boolean in the coil</span>
+<span class="cm"> */</span>
+<span class="kt">uint8_t</span> <span class="nf">readCoil</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="n">fc</span><span class="p">,</span> <span class="kt">uint16_t</span> <span class="n">address</span><span class="p">,</span> <span class="kt">uint16_t</span> <span class="n">length</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="k">if</span><span class="p">(</span><span class="n">fc</span> <span class="o">==</span> <span class="n">FC_READ_COILS</span><span class="p">)</span>
+  <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">address</span> <span class="o">&lt;</span> <span class="n">DAC_V_LEN</span><span class="p">)</span>
+    <span class="p">{</span>
+      <span class="n">slave</span><span class="p">.</span><span class="n">writeCoilToBuffer</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">getPower</span><span class="p">(</span><span class="n">address</span><span class="p">));</span>
+      <span class="k">return</span> <span class="n">STATUS_OK</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+      <span class="k">return</span> <span class="n">STATUS_ILLEGAL_DATA_ADDRESS</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">else</span>
+    <span class="k">return</span> <span class="n">STATUS_ILLEGAL_FUNCTION</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// ###############################################################</span>
+<span class="c1">// #################### DAC CONTROL FUNCTIONS ####################</span>
+<span class="c1">// ###############################################################</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Updates the voltage in the DAC channel input and DAC register</span>
+<span class="cm"> * @param newV The new raw voltage to command</span>
+<span class="cm"> * @param address The DAC channel address</span>
+<span class="cm"> */</span>
+<span class="kt">void</span> <span class="nf">updateV</span><span class="p">(</span><span class="kt">uint16_t</span> <span class="n">newV</span><span class="p">,</span> <span class="kt">uint16_t</span> <span class="n">address</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="n">dacV</span><span class="p">[</span><span class="n">address</span><span class="p">]</span> <span class="o">=</span> <span class="n">newV</span> <span class="o">&lt;</span> <span class="mi">4096</span> <span class="o">?</span> <span class="nl">newV</span> <span class="p">:</span> <span class="mi">4095</span><span class="p">;</span> <span class="c1">//newV must be a 12-bit number or less</span>
+  <span class="kt">uint8_t</span> <span class="n">dacPin</span> <span class="o">=</span> <span class="n">PIN_ARRAY</span><span class="p">[</span><span class="n">address</span> <span class="o">/</span> <span class="mi">4</span><span class="p">];</span>
+
+  <span class="c1">//Creates the input register byte</span>
+  <span class="kt">uint16_t</span> <span class="n">updateVoltageWord</span> <span class="o">=</span> <span class="p">(</span><span class="n">newV</span> <span class="o">%</span> <span class="mi">4096</span><span class="p">)</span> <span class="o">+</span> <span class="p">(((</span><span class="n">address</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">12</span><span class="p">);</span>
+  
+  <span class="n">SPI</span><span class="p">.</span><span class="n">beginTransaction</span><span class="p">(</span><span class="n">spiSet</span><span class="p">);</span>
+  
+  <span class="n">digitalWrite</span><span class="p">(</span><span class="n">dacPin</span><span class="p">,</span> <span class="n">LOW</span><span class="p">);</span> <span class="c1">//Hold SYNC low on this DAC to update input register</span>
+  <span class="n">delayMicroseconds</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+  <span class="n">SPI</span><span class="p">.</span><span class="n">transfer16</span><span class="p">(</span><span class="n">updateVoltageWord</span><span class="p">);</span>
+  <span class="n">delayMicroseconds</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+  <span class="n">digitalWrite</span><span class="p">(</span><span class="n">dacPin</span><span class="p">,</span> <span class="n">HIGH</span><span class="p">);</span>
+  
+  <span class="n">digitalWrite</span><span class="p">(</span><span class="n">LDAC_PIN</span><span class="p">,</span> <span class="n">LOW</span><span class="p">);</span> <span class="c1">//Write input register data to DAC register by pulsing LDAC</span>
+  <span class="n">delayMicroseconds</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+  <span class="n">digitalWrite</span><span class="p">(</span><span class="n">LDAC_PIN</span><span class="p">,</span> <span class="n">HIGH</span><span class="p">);</span>
+  
+  <span class="n">SPI</span><span class="p">.</span><span class="n">endTransaction</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Returns the DAC channel voltage currently in the holding register</span>
+<span class="cm"> * @return The raw voltage currently stored in the holding register</span>
+<span class="cm"> */</span>
+<span class="kt">uint16_t</span> <span class="nf">getV</span><span class="p">(</span><span class="kt">uint16_t</span> <span class="n">address</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="k">return</span> <span class="n">dacV</span><span class="p">[</span><span class="n">address</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Powers up or down a DAC analog channel</span>
+<span class="cm"> * @param powerOn True if power is desired; false if not</span>
+<span class="cm"> * @param address The DAC channel address</span>
+<span class="cm"> */</span>
+<span class="kt">void</span> <span class="nf">power</span><span class="p">(</span><span class="kt">bool</span> <span class="n">powerOn</span><span class="p">,</span> <span class="kt">uint16_t</span> <span class="n">address</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="c1">//This is the saved control register value for the DAC</span>
+  <span class="kt">uint16_t</span> <span class="n">powWord</span> <span class="o">=</span> <span class="n">controlArray</span><span class="p">[</span><span class="n">address</span> <span class="o">/</span> <span class="mi">4</span><span class="p">];</span>
+  <span class="kt">uint16_t</span> <span class="n">dacPin</span> <span class="o">=</span> <span class="n">PIN_ARRAY</span><span class="p">[</span><span class="n">address</span> <span class="o">/</span> <span class="mi">4</span><span class="p">];</span>
+
+  <span class="c1">//This byte picks out the power-up/down bit for the DAC channel</span>
+  <span class="kt">uint16_t</span> <span class="n">bitLoc</span> <span class="o">=</span> <span class="n">_BV</span><span class="p">(</span><span class="n">address</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">+</span> <span class="mi">2</span><span class="p">);</span>
+
+  <span class="c1">//If you want to power up the channel, set the bit to 1; else 0</span>
+  <span class="n">powWord</span> <span class="o">=</span> <span class="n">powerOn</span> <span class="o">?</span> <span class="n">powWord</span> <span class="o">|</span> <span class="nl">bitLoc</span> <span class="p">:</span> <span class="n">powWord</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">bitLoc</span><span class="p">;</span>
+  <span class="c1">//Now save the control register value</span>
+  <span class="n">controlArray</span><span class="p">[</span><span class="n">address</span> <span class="o">/</span> <span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">powWord</span><span class="p">;</span>
+  
+  <span class="n">SPI</span><span class="p">.</span><span class="n">beginTransaction</span><span class="p">(</span><span class="n">spiSet</span><span class="p">);</span>
+  
+  <span class="n">digitalWrite</span><span class="p">(</span><span class="n">dacPin</span><span class="p">,</span> <span class="n">LOW</span><span class="p">);</span>
+  <span class="n">delayMicroseconds</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+  <span class="n">SPI</span><span class="p">.</span><span class="n">transfer16</span><span class="p">(</span><span class="n">powWord</span><span class="p">);</span>
+  <span class="n">delayMicroseconds</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+  <span class="n">digitalWrite</span><span class="p">(</span><span class="n">dacPin</span><span class="p">,</span> <span class="n">HIGH</span><span class="p">);</span>
+  
+  <span class="n">SPI</span><span class="p">.</span><span class="n">endTransaction</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Returns whether the DAC channel is powered on or off based on its control byte</span>
+<span class="cm"> * @param address The DAC channel address</span>
+<span class="cm"> * @return True if on; false if off</span>
+<span class="cm"> */</span>
+<span class="kt">bool</span> <span class="nf">getPower</span><span class="p">(</span><span class="kt">uint16_t</span> <span class="n">address</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="c1">//Serial.print(&quot;controlArray: &quot;); Serial.print(controlArray[address / 4], BIN);</span>
+  <span class="k">return</span> <span class="n">controlArray</span><span class="p">[</span><span class="n">address</span> <span class="o">/</span> <span class="mi">4</span><span class="p">]</span> <span class="o">&amp;</span> <span class="n">_BV</span><span class="p">(</span><span class="n">address</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">+</span> <span class="mi">2</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Reads input register voltage from the specified channel</span>
+<span class="cm"> * </span>
+<span class="cm"> * NOTE: This may not return the correct value from the input register, since the SPI protocol</span>
+<span class="cm"> *  used by the Arduino and Dac differ. Thus this method should only be used to check that a</span>
+<span class="cm"> *  value has been loaded into the input register.</span>
+<span class="cm"> *  @param address The DAC channel address</span>
+<span class="cm"> *  @return The raw voltage read from the DAC channel&#39;s input register</span>
+<span class="cm"> */</span>
+<span class="kt">uint16_t</span> <span class="nf">readV</span><span class="p">(</span><span class="kt">uint16_t</span> <span class="n">address</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="kt">uint8_t</span> <span class="n">dacPin</span> <span class="o">=</span> <span class="n">PIN_ARRAY</span><span class="p">[</span><span class="n">address</span> <span class="o">/</span> <span class="mi">4</span><span class="p">];</span>
+  <span class="kt">uint16_t</span> <span class="n">readVWord</span> <span class="o">=</span> <span class="mi">0</span><span class="n">b1000000000000000</span> <span class="o">+</span> <span class="p">(((</span><span class="n">address</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">12</span><span class="p">);</span>
+  
+  <span class="n">SPI</span><span class="p">.</span><span class="n">beginTransaction</span><span class="p">(</span><span class="n">spiSet</span><span class="p">);</span>
+  
+  <span class="n">digitalWrite</span><span class="p">(</span><span class="n">dacPin</span><span class="p">,</span> <span class="n">LOW</span><span class="p">);</span>
+  <span class="n">delayMicroseconds</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+  <span class="kt">uint16_t</span> <span class="n">vRead</span> <span class="o">=</span> <span class="p">(</span><span class="n">SPI</span><span class="p">.</span><span class="n">transfer16</span><span class="p">(</span><span class="n">readVWord</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4096</span><span class="p">;</span>
+  <span class="n">delayMicroseconds</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+  <span class="n">digitalWrite</span><span class="p">(</span><span class="n">dacPin</span><span class="p">,</span> <span class="n">HIGH</span><span class="p">);</span>
+  
+  <span class="n">SPI</span><span class="p">.</span><span class="n">endTransaction</span><span class="p">();</span>
+  
+  <span class="k">return</span> <span class="n">vRead</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
 </div>
 <div class="section" id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>

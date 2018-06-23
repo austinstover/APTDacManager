@@ -247,26 +247,34 @@
         <span class="k">return</span> <span class="n">rawV</span> <span class="o">*</span> <span class="mf">60.0</span><span class="o">/</span><span class="mf">4096.0</span></div>
 
 <div class="viewcode-block" id="DacMaster.convertToRawV"><a class="viewcode-back" href="../index.html#DacMaster.DacMaster.convertToRawV">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">convertToRawV</span><span class="p">(</span><span class="n">actualV</span><span class="p">):</span> <span class="c1">#TODO: Ensure actualV is non-negative</span>
+    <span class="k">def</span> <span class="nf">convertToRawV</span><span class="p">(</span><span class="n">actualV</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Converts a floating-point voltage to its raw 12-bit value to input into many</span>
-<span class="sd">        DacMaster functions</span>
+<span class="sd">        Converts a floating-point voltage (in volts, between 0 and 60 inclusive) to its</span>
+<span class="sd">        raw 12-bit value to input into many DacMaster functions</span>
 <span class="sd">        :param actualV: The floating-point voltage value to convert</span>
 <span class="sd">        :returns: The 12-bit raw voltage equivalent of actualV</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">actualV</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">actualV</span> <span class="o">&gt;</span> <span class="mi">60</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;The voltage to convert must be between 0 and 60 inclusive&#39;</span><span class="p">)</span>
         <span class="n">rawV</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">)(</span><span class="n">actualV</span> <span class="o">*</span> <span class="mf">4096.0</span><span class="o">/</span><span class="mf">60.0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">rawV</span> <span class="k">if</span> <span class="n">rawV</span> <span class="o">&lt;</span> <span class="mi">4096</span> <span class="k">else</span> <span class="mi">4095</span> <span class="c1">#rawV must be a 12 bit number or less</span></div></div>
 
 <span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;A DacMaster Demo Program&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A DacMaster Demo Program: This updates the specified DAC with the voltage, and then</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">slaveId</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">port</span> <span class="o">=</span> <span class="s1">&#39;COM4&#39;</span>
     <span class="n">baudrate</span> <span class="o">=</span> <span class="mi">9600</span>
     <span class="n">dacChan</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">dacNum</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">voltage</span> <span class="o">=</span> <span class="n">DacMaster</span><span class="o">.</span><span class="n">convertToRawV</span><span class="p">(</span><span class="mf">5.00</span><span class="p">)</span>
+
+    <span class="n">newVoltage</span> <span class="o">=</span> <span class="mf">5.00</span>
     
+    <span class="n">rawV</span> <span class="o">=</span> <span class="n">DacMaster</span><span class="o">.</span><span class="n">convertToRawV</span><span class="p">(</span><span class="n">newVoltage</span><span class="p">)</span>
     <span class="n">cntrl</span> <span class="o">=</span> <span class="n">DacMaster</span><span class="p">(</span><span class="n">slaveId</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">baudrate</span><span class="p">)</span>
+    
+    <span class="sd">&#39;&#39;&#39;Gets the address for the DAC based on the current DAC channel, number, board, and</span>
+<span class="sd">    SiPM channel&#39;&#39;&#39;</span>
     <span class="n">dacAddress</span> <span class="o">=</span> <span class="n">cntrl</span><span class="o">.</span><span class="n">address</span><span class="p">(</span><span class="n">dacChan</span><span class="p">,</span> <span class="n">dacNum</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;dacAddress: &quot;</span><span class="p">,</span> <span class="n">dacAddress</span><span class="p">)</span>
