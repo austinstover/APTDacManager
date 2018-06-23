@@ -115,7 +115,10 @@ class DacMaster:
         return rawV if rawV < 4096 else 4095 #rawV must be a 12 bit number or less
 
 def main():
-    """A DacMaster Demo Program: This updates the specified DAC with the voltage, and then
+    """A DacMaster Demo Program: This updates the specified DAC with the
+    voltage, powers on the analog output to reach that voltage, and then reads
+    back the voltage both in the holding register on the slave and the input
+    register on the DAC.
     """
     slaveId = 0
     port = 'COM4'
