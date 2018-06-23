@@ -102,26 +102,34 @@ class DacMaster:
         return rawV * 60.0/4096.0
 
     @staticmethod
-    def convertToRawV(actualV): #TODO: Ensure actualV is non-negative
+    def convertToRawV(actualV):
         """
-        Converts a floating-point voltage to its raw 12-bit value to input into many
-        DacMaster functions
+        Converts a floating-point voltage (in volts, between 0 and 60 inclusive) to its
+        raw 12-bit value to input into many DacMaster functions
         :param actualV: The floating-point voltage value to convert
         :returns: The 12-bit raw voltage equivalent of actualV
         """
+        if (actualV < 0 or actualV > 60):
+            raise ValueError('The voltage to convert must be between 0 and 60 inclusive')
         rawV = (int)(actualV * 4096.0/60.0)
         return rawV if rawV < 4096 else 4095 #rawV must be a 12 bit number or less
 
 def main():
-    """A DacMaster Demo Program"""
+    """A DacMaster Demo Program: This updates the specified DAC with the voltage, and then
+    """
     slaveId = 0
     port = 'COM4'
     baudrate = 9600
     dacChan = 0
     dacNum = 0
-    voltage = DacMaster.convertToRawV(5.00)
+
+    newVoltage = 5.00
     
+    rawV = DacMaster.convertToRawV(newVoltage)
     cntrl = DacMaster(slaveId, port, baudrate)
+    
+    '''Gets the address for the DAC based on the current DAC channel, number, board, and
+    SiPM channel'''
     dacAddress = cntrl.address(dacChan, dacNum)
 
     print("dacAddress: ", dacAddress)

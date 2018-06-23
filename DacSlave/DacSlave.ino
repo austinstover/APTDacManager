@@ -1,28 +1,28 @@
 /**
+ * @file DacSlave.ino
  * @author Austin Stover
  * @date June 2018
+ * 
  * This program communicates with a computer running DacMaster.py using the Modbus 
  * RS485 protocol to manage AD5504 DACs for the APT experiment CERN prototype
- * 
- * TODO: Implement clearing
- *       Add GNU GPLv3 License
  */
 
 #include <SPI.h>
 #include <ModbusSlave.h>
 
-const int SLAVE_ID = 0; //This specifies which Arduino to which the master will talk
+const int SLAVE_ID = 0; ///< This specifies which Arduino to which the master will talk
 const int BAUD_RATE = 9600;
 
-const int TX_PIN = 2; //The DE/RE pin for the Serial to RS485 converter
-const int LDAC_PIN = 47; //This pin is pulsed to move data from input to DAC register
+const int TX_PIN = 2; ///< This is the DE/RE pin for the Serial to RS485 converter
+const int LDAC_PIN = 47; ///< This pin is pulsed to move data from input to DAC register
 const int CLR_PIN = 45;
 
 const uint8_t NUM_SIPM_CHANS = 1;
-const uint8_t NUM_BOARDS = 1; //The number of boards per SiPM channel
+const uint8_t NUM_BOARDS = 1; ///< The number of boards per SiPM channel
     
-/*
- * PIN_ARRAY[] relates the DAC channel chip select outputs to specific Arduino pins.
+/**
+ * @brief PIN_ARRAY[] relates the DAC channel chip select outputs to specific Arduino pins.
+ * 
  * There is 1 pin per DAC and 2 DACs per board, NUM_BOARDS per SiPM channel, and
  * NUM_SIPM_CHANS SiPM channels overall. The first 2 pins in the array therefore denote 
  * DAC pins (chip selects) 0 and 1 on board 0. The next two pins are 0 and 1 on board 1,
@@ -37,25 +37,31 @@ const uint8_t PIN_ARRAY[PIN_ARRAY_LEN] = {44,46};
 // Board Number:                          0     1     2    ... n     n+1
 // SiPM Channel:                          0                    1
 
-/*
- * controlArray[] elements are numbered the same way as PIN_ARRAY[] elements, so
+const uint16_t CONTROL_ARRAY_LEN = NUM_SIPM_CHANS*NUM_BOARDS*2;
+
+/**
+ * @brief controlArray[] elements are numbered the same way as PIN_ARRAY[] elements
+ * 
  * controlArray[i] denotes the same DAC channel as PIN_ARRAY[i]. The element index is
  * related to its parameters by the following equation (using integer division):
  * cIndex = address / 4 = NUM_BOARDS*2*sipmChan + 2*boardNum + dacNum
  */
-const uint16_t CONTROL_ARRAY_LEN = NUM_SIPM_CHANS*NUM_BOARDS*2;
 uint16_t controlArray[CONTROL_ARRAY_LEN]; //Saves the states of the control registers
     
 const SPISettings spiSet{9000000, MSBFIRST, SPI_MODE0};
 
-/*
- * dacV[] holds the voltage for each DAC channel. There are 4 times as many entries in
- * this array as there are in PIN_ARRAY[] or controlArray[], since there are 4 channels 
- * per DAC. There are therefore 4 elements per DAC number, as illustrated. To get the
- * controlArray element from the dacV element, just integer divide by 4. The DAC channel
- * can also be determined from the dacV element by performing modulo 4 on the element #.
- */
+
 const uint16_t DAC_V_LEN = NUM_SIPM_CHANS*NUM_BOARDS*2*4;
+
+/**
+ * @brief dacV[] holds the voltage for each DAC channel
+ * 
+ * There are 4 times as many entries in this array as there are in PIN_ARRAY[] or 
+ * controlArray[], since there are 4 channels per DAC. There are therefore 4 elements
+ * per DAC number, as illustrated. To get the controlArray element from the dacV
+ * element, just integer divide by 4. The DAC channel can also be determined from the
+ * dacV element by performing modulo 4 on the element #.
+ */
 uint16_t dacV[DAC_V_LEN] = { 0 }; //Init all Vs to 0
 // Element index:            0  1  2  3  4  5  6  7  8 ...
 // DAC Channel:              0  1  2  3  0  1  2  3  0 ...
@@ -206,6 +212,8 @@ uint8_t readCoil(uint8_t fc, uint16_t address, uint16_t length)
 
 /**
  * Updates the voltage in the DAC channel input and DAC register
+ * @param newV The new raw voltage to command
+ * @param address The DAC channel address
  */
 void updateV(uint16_t newV, uint16_t address)
 {
@@ -232,6 +240,7 @@ void updateV(uint16_t newV, uint16_t address)
 
 /**
  * Returns the DAC channel voltage currently in the holding register
+ * @return The raw voltage currently stored in the holding register
  */
 uint16_t getV(uint16_t address)
 {
@@ -240,6 +249,8 @@ uint16_t getV(uint16_t address)
 
 /**
  * Powers up or down a DAC analog channel
+ * @param powerOn True if power is desired; false if not
+ * @param address The DAC channel address
  */
 void power(bool powerOn, uint16_t address)
 {
@@ -268,6 +279,8 @@ void power(bool powerOn, uint16_t address)
 
 /**
  * Returns whether the DAC channel is powered on or off based on its control byte
+ * @param address The DAC channel address
+ * @return True if on; false if off
  */
 bool getPower(uint16_t address)
 {
@@ -277,9 +290,12 @@ bool getPower(uint16_t address)
 
 /**
  * Reads input register voltage from the specified channel
+ * 
  * NOTE: This may not return the correct value from the input register, since the SPI protocol
  *  used by the Arduino and Dac differ. Thus this method should only be used to check that a
  *  value has been loaded into the input register.
+ *  @param address The DAC channel address
+ *  @return The raw voltage read from the DAC channel's input register
  */
 uint16_t readV(uint16_t address)
 {
