@@ -136,8 +136,8 @@ def main():
     dacAddress = cntrl.address(dacChan, dacNum)
 
     print("dacAddress: ", dacAddress)
-    cntrl.updateV(dacAddress, voltage)
-    print("rawV: ", bin(voltage))
+    cntrl.updateV(dacAddress, rawV)
+    print("rawV: ", bin(rawV))
     cntrl.powerUp(dacAddress)
     print("getV: ", DacMaster.convertToActualV(cntrl.getV(dacAddress)))
     print("readV: ", DacMaster.convertToActualV(cntrl.readV(dacAddress)))
