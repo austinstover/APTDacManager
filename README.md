@@ -15,4 +15,8 @@ Be sure to use `from DacMaster import DacMaster` to import the python class
   - [MinimalModbus](https://github.com/pyhys/minimalmodbus)
   - [ArduinoModbusSlave](https://github.com/yaacov/ArduinoModbusSlave)
   
-Tested with Python v3.5.3 and Arduino v1.8.3
+Tested with:
+  - Python				v3.5.3
+  - Arduino				v1.8.3
+  - MinimalModbus		v0.7.0
+  - ArduinoModbusSlave	v2.0.0
