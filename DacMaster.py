@@ -4,9 +4,27 @@ RTU RS485 protocol for the APT experiment CERN prototype.
 
 ..  moduleauthor:: Austin Stover <stover.a@wustl.edu>
     :date: June 2018
+
+Copyright (C) 2018  Austin Stover
+
+This file is part of APTDacManager.
+
+    APTDacManager is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    APTDacManager is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with APTDacManager.  If not, see <https://www.gnu.org/licenses/>.
 '''
 
 import minimalmodbus as mb
+#mb.CLOSE_PORT_AFTER_EACH_CALL=True
 
 class DacMaster:
     """This class defines methods to send and receive commands to the slave.
@@ -34,7 +52,6 @@ class DacMaster:
         :param newV: The raw integer voltage with which to update the DAC channel
         :param address: The address of the DAC channel
         """
-        
         self.slave.write_register(address, newRawV, functioncode=6)
 
     def getV(self, address):
