@@ -32,7 +32,7 @@ varFileAbsDir = os.path.join(os.path.dirname(__file__),VAR_FILE_DIR,VAR_FILE_NAM
 
 def init_command(): #Unpack vars from file and reinitialize cntrl object
     persisting_vars = pickle.load(open(varFileAbsDir, 'rb')) #open() only works with admin priveleges
-    print(*persisting_vars[:-1])
+    #print(*persisting_vars[:-1])
     cntrl = dm(*persisting_vars[:-1])
     addressDict = persisting_vars[-1]
     return cntrl, addressDict
@@ -87,8 +87,8 @@ def powUp(args):
     try:
         channel = cntrl.address(*addressDict[args.chan])
         print(*addressDict[args.chan])
-        print(channel)
-        print(addressDict)
+        #print(channel)
+        #print(addressDict)
         cntrl.powerUp(channel)
     except KeyError:
         print('Error: DAC channel address not found')
@@ -105,7 +105,7 @@ def powDown(args):
     cntrl, addressDict = init_command()
     try:
         channel = cntrl.address(*addressDict[args.chan])
-        print(channel)
+        #print(channel)
         cntrl.powerDown(channel)
     except KeyError:
         print('Error: DAC channel address not found. See DacDir.txt or the ' +
@@ -119,13 +119,32 @@ psr_powDown.add_argument('chan', type=str,
                           help="Address of DAC channel")
 psr_powDown.set_defaults(func=powDown)
 
+#getPower command
+def getPower(args):
+    cntrl, addressDict = init_command()
+    try:
+        channel = cntrl.address(*addressDict[args.chan])
+        #print(channel)
+        print('Pow =',bool(cntrl.getPower(channel)))
+    except KeyError:
+        print('Error: DAC channel address not found. See DacDir.txt or the ' +
+              'DAC directory file you specified for a list of available DAC ' +
+              'names.')
+        exit(1)
+        
+psr_getPow= subpsrs.add_parser('getPower', aliases=['getPow','gtP'],
+                                  help='Return whether or not a channel is powered on')
+psr_getPow.add_argument('chan', type=str, 
+                          help="Address of DAC channel")
+psr_getPow.set_defaults(func=getPower)
+
 #getV command
 def getV(args):
     cntrl, addressDict = init_command()
     try:
         channel = cntrl.address(*addressDict[args.chan])
-        print(channel)
-        cntrl.getV(channel)
+        #print(channel)
+        print('V:',dm.convertToActualV(cntrl.getV(channel)))
     except KeyError:
         print('Error: DAC channel address not found')
         exit(1)
@@ -135,6 +154,23 @@ psr_getV = subpsrs.add_parser('getV', aliases=['gtV'],
 psr_getV.add_argument('chan', type=str, 
                        help="Address of DAC channel")
 psr_getV.set_defaults(func=getV)
+
+#readV command
+def readV(args):
+    cntrl, addressDict = init_command()
+    try:
+        channel = cntrl.address(*addressDict[args.chan])
+        #print(channel)
+        print('V:',dm.convertToActualV(cntrl.readV(channel)))
+    except KeyError:
+        print('Error: DAC channel address not found')
+        exit(1)
+
+psr_readV = subpsrs.add_parser('readV', aliases=['rdV'],
+                               help='Queries the DAC for approximate voltage')
+psr_readV.add_argument('chan', type=str, 
+                       help="Address of DAC channel")
+psr_readV.set_defaults(func=readV)
 
 #updateV command
 def updateV(args):

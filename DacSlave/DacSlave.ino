@@ -31,7 +31,7 @@ const int SLAVE_ID = 0; ///< This specifies which Arduino to which the master wi
 const int BAUD_RATE = 9600;
 
 const int TX_PIN = 2; ///< This is the DE/RE pin for the Serial to RS485 converter
-const int LDAC_PIN = 47; ///< This pin is pulsed to move data from input to DAC register
+const int LDAC_PIN = 47;a ///< This pin is pulsed to move data from input to DAC register
 const int CLR_PIN = 45;
 
 const uint8_t NUM_SIPM_CHANS = 1;
