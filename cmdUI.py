@@ -9,8 +9,9 @@ as well as for a temperature plate.
 Use: Run python cmdUI.py
      -h for man
      On Windows, run cmd.exe as administrator
-
-     TODO: Add "all" to cmd line addresses
+     
+TODO: Automatically check if DACS actually turned on/off or say they are at 
+the voltages you commanded
 """
 
 from DacMaster import DacMaster as dm
@@ -31,7 +32,7 @@ VAR_FILE_NAME = 'cmd_UI_vars.obj' #Should have extension '.obj' in it
 varFileAbsDir = os.path.join(os.path.dirname(__file__),VAR_FILE_DIR,VAR_FILE_NAME) #Absolute directory
 
 def init_command(): #Unpack vars from file and reinitialize cntrl object
-    persisting_vars = pickle.load(open(varFileAbsDir, 'rb')) #open() only works with admin priveleges
+    persisting_vars = pickle.load(open(varFileAbsDir, 'rb'))
     #print(*persisting_vars[:-1])
     cntrl = dm(*persisting_vars[:-1])
     addressDict = persisting_vars[-1]
@@ -40,14 +41,14 @@ def init_command(): #Unpack vars from file and reinitialize cntrl object
 
 ### DEFINE COMMAND LINE PARSERS
 
-psr = argparse.ArgumentParser(description='Control Voltages on the DACs; \
-                                 Measure temp; Control peltier cooler.')
+psr = argparse.ArgumentParser(description='Control Voltages on the DACs.')
 subpsrs = psr.add_subparsers()
 
 # init command
 def init(args):
-    print(args)
-    print(args.slaveId, args.port, args.baudrate, args.numBoards, args.addressFile)
+    print('Settings:','\n\tSlave ID:\t ',args.slaveId,'\n\tPort #:\t\t ',args.port,
+          '\n\tBaudrate:\t ',args.baudrate,'\n\tNumber of Boards:',args.numBoards,
+          '\n\tAddress txt file:',args.addressFile)
     
     addressDict = {} #Store the address directory here
     with open(args.addressFile) as file: #TODO: Catch file not found error
@@ -57,13 +58,24 @@ def init(args):
                 entries = []
                 entries = tuple(line.split())
                 addressDict[entries[0]] = tuple(int(i) for i in entries[1:])  #Add or update key-val pair      #TODO: Throw error when only 1 word exists on line i.e. entries[1:] is empty
-    
-    print(addressDict)
-    
+                #print("Entries:",entries[0])
+                
     persisting_vars = (args.slaveId, args.port, args.baudrate, args.numBoards, addressDict) #A tuple of vars to store in between commands
     
     var_file = open(varFileAbsDir, 'wb')
     pickle.dump(persisting_vars,var_file) #Save persisting variables in obj file
+    
+    #Test connections
+    cntrl = dm(*persisting_vars[:-1])
+    addressDict = persisting_vars[-1]
+    print('Channel List:')
+    for key,chan in addressDict.items():
+        try:
+            print(*chan)
+            print('Alias: ',key,'\tChan #, DAC#: ',chan,'\tStart Val: ',dm.convertToActualV(cntrl.readV(cntrl.address(*chan))),'V', sep='')
+        except KeyError:
+            print('Error: DAC channel address',key,'not found')
+            exit(1)
             
 
 psr_init = subpsrs.add_parser('init', #aliases=['in']
@@ -82,113 +94,142 @@ psr_init.add_argument('-a','--addressFile', type=str, default=DAC_DIR_FILE,
 psr_init.set_defaults(func=init)
 
 #powerUp command
-def powUp(args):
+def powUp(args):            
     cntrl, addressDict = init_command()
-    try:
-        channel = cntrl.address(*addressDict[args.chan])
-        print(*addressDict[args.chan])
-        #print(channel)
-        #print(addressDict)
-        cntrl.powerUp(channel)
-    except KeyError:
-        print('Error: DAC channel address not found')
-        exit(1)
+    if(args.chan[0].lower()) == 'all': #If 'all' entered, use all the chans
+        args.chan = list(addressDict.keys())
+    for chan in args.chan:
+        try:
+            channel = cntrl.address(*addressDict[chan])
+            #print(*addressDict[chan])
+            #print(channel)
+            #print(addressDict)
+            cntrl.powerUp(channel)
+            print(chan,': \tPow =',bool(cntrl.getPower(channel)))
+        except KeyError:
+            print('Error: DAC channel address for',chan,'not found. See ' +
+                  'DacDir.txt or the DAC directory file you specified for ' +
+                  'a list of available DAC names.')
+            exit(1)
 
 psr_powUp = subpsrs.add_parser('powerUp', aliases=['powUp'],
                                     help='Power up a channel')
-psr_powUp.add_argument('chan', type=str, 
-                          help="Address of DAC channel")
+psr_powUp.add_argument('chan', type=str, nargs='*',
+                          help="Addresses of DAC channels or 'all'")
 psr_powUp.set_defaults(func=powUp)
 
 #powerDown command
 def powDown(args):
     cntrl, addressDict = init_command()
-    try:
-        channel = cntrl.address(*addressDict[args.chan])
-        #print(channel)
-        cntrl.powerDown(channel)
-    except KeyError:
-        print('Error: DAC channel address not found. See DacDir.txt or the ' +
-              'DAC directory file you specified for a list of available DAC ' +
-              'names.')
-        exit(1)
+    if(args.chan[0].lower()) == 'all': #If 'all' entered, use all the chans
+        args.chan = list(addressDict.keys())
+    for chan in args.chan:
+        try:
+            channel = cntrl.address(*addressDict[chan])
+            #print(channel)
+            cntrl.powerDown(channel)
+            print(chan,': \tPow =',bool(cntrl.getPower(channel)))
+        except KeyError:
+            print('Error: DAC channel address for',chan,'not found. See ' +
+                  'DacDir.txt or the DAC directory file you specified for ' +
+                  'a list of available DAC names.')
+            exit(1)
         
 psr_powDown = subpsrs.add_parser('powerDown', aliases=['powDn','powDown'],
                                   help='Power down a channel')
-psr_powDown.add_argument('chan', type=str, 
-                          help="Address of DAC channel")
+psr_powDown.add_argument('chan', type=str, nargs='*',
+                          help="Addresses of DAC channels or 'all'")
 psr_powDown.set_defaults(func=powDown)
 
 #getPower command
 def getPower(args):
     cntrl, addressDict = init_command()
-    try:
-        channel = cntrl.address(*addressDict[args.chan])
-        #print(channel)
-        print('Pow =',bool(cntrl.getPower(channel)))
-    except KeyError:
-        print('Error: DAC channel address not found. See DacDir.txt or the ' +
-              'DAC directory file you specified for a list of available DAC ' +
-              'names.')
-        exit(1)
+    if(args.chan[0].lower()) == 'all': #If 'all' entered, use all the chans
+        args.chan = list(addressDict.keys())
+    for chan in args.chan:
+        try:
+            channel = cntrl.address(*addressDict[chan])
+            #print(channel)
+            print(chan,': \tPow =',bool(cntrl.getPower(channel)))
+        except KeyError:
+            print('Error: DAC channel address for',chan,'not found. See ' +
+                  'DacDir.txt or the DAC directory file you specified for ' +
+                  'a list of available DAC names.')
+            exit(1)
         
 psr_getPow= subpsrs.add_parser('getPower', aliases=['getPow','gtP'],
                                   help='Return whether or not a channel is powered on')
-psr_getPow.add_argument('chan', type=str, 
-                          help="Address of DAC channel")
+psr_getPow.add_argument('chan', type=str, nargs='*',
+                          help="Addresses of DAC channels or 'all'")
 psr_getPow.set_defaults(func=getPower)
 
 #getV command
 def getV(args):
     cntrl, addressDict = init_command()
-    try:
-        channel = cntrl.address(*addressDict[args.chan])
-        #print(channel)
-        print('V:',dm.convertToActualV(cntrl.getV(channel)))
-    except KeyError:
-        print('Error: DAC channel address not found')
-        exit(1)
+    if(args.chan[0].lower()) == 'all': #If 'all' entered, use all the chans
+        args.chan = list(addressDict.keys())
+    for chan in args.chan:
+        try:
+            channel = cntrl.address(*addressDict[chan])
+            #print(channel)
+            print(chan,': \tV =',dm.convertToActualV(cntrl.getV(channel)))
+        except KeyError:
+            print('Error: DAC channel address for',chan,'not found. See ' +
+                  'DacDir.txt or the DAC directory file you specified for ' +
+                  'a list of available DAC names.')
+            exit(1)
 
 psr_getV = subpsrs.add_parser('getV', aliases=['gtV'],
                                help='Returns the voltage for the DAC channel')
-psr_getV.add_argument('chan', type=str, 
-                       help="Address of DAC channel")
+psr_getV.add_argument('chan', type=str, nargs='*',
+                       help="Addresses of DAC channels or 'all'")
 psr_getV.set_defaults(func=getV)
 
 #readV command
 def readV(args):
     cntrl, addressDict = init_command()
-    try:
-        channel = cntrl.address(*addressDict[args.chan])
-        #print(channel)
-        print('V:',dm.convertToActualV(cntrl.readV(channel)))
-    except KeyError:
-        print('Error: DAC channel address not found')
-        exit(1)
+    if(args.chan[0].lower()) == 'all': #If 'all' entered, use all the chans
+        args.chan = list(addressDict.keys())
+    for chan in args.chan:
+        try:
+            channel = cntrl.address(*addressDict[chan])
+            #print(channel)
+            print(chan,': \tV:',dm.convertToActualV(cntrl.readV(channel)))
+        except KeyError:
+            print('Error: DAC channel address for',chan,'not found. See ' +
+                  'DacDir.txt or the DAC directory file you specified for ' +
+                  'a list of available DAC names.')
+            exit(1)
 
 psr_readV = subpsrs.add_parser('readV', aliases=['rdV'],
                                help='Queries the DAC for approximate voltage')
-psr_readV.add_argument('chan', type=str, 
-                       help="Address of DAC channel")
+psr_readV.add_argument('chan', type=str, nargs='*',
+                       help="Addresses of DAC channels or 'all'")
 psr_readV.set_defaults(func=readV)
 
 #updateV command
 def updateV(args):
     cntrl, addressDict = init_command()
-    try:
-        channel = cntrl.address(*addressDict[args.chan])
-        print(channel, args.newV)
-        cntrl.updateV(channel, cntrl.convertToRawV(args.newV))
-    except KeyError:
-        print('Error: DAC channel address not found')
-        exit(1)
+    if(args.chan[0].lower()) == 'all': #If 'all' entered, use all the chans
+        args.chan = list(addressDict.keys())
+    for chan in args.chan:
+        try:
+            channel = cntrl.address(*addressDict[chan])
+            #print(channel, args.newV)
+            cntrl.updateV(channel, cntrl.convertToRawV(args.newV))
+            print(chan,': \tV:',dm.convertToActualV(cntrl.readV(channel)))
+        except KeyError:
+            print('Error: DAC channel address for',chan,'not found. See ' +
+                  'DacDir.txt or the DAC directory file you specified for ' +
+                  'a list of available DAC names.')
+            exit(1)
 
 psr_updateV = subpsrs.add_parser('updateV', aliases=['newV'],
                                  help='Updates the voltage on the DAC channel')
-psr_updateV.add_argument('chan', type=str, 
-                          help="Address of DAC channel")
 psr_updateV.add_argument('newV',type=float,
                          help="New voltage to output")
+psr_updateV.add_argument('chan', type=str, nargs='*',
+                          help="Addresses of DAC channels or 'all'")
 psr_updateV.set_defaults(func=updateV)
 
 ### PARSE COMMAND LINE AND EVALUATE
