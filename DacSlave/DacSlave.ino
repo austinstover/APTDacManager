@@ -31,7 +31,7 @@ const int SLAVE_ID = 0; ///< This specifies which Arduino to which the master wi
 const int BAUD_RATE = 9600;
 
 const int TX_PIN = 2; ///< This is the DE/RE pin for the Serial to RS485 converter
-const int LDAC_PIN = 47;a ///< This pin is pulsed to move data from input to DAC register
+const int LDAC_PIN = 47; ///< This pin is pulsed to move data from input to DAC register
 const int CLR_PIN = 45;
 
 const uint8_t NUM_SIPM_CHANS = 1;
@@ -92,7 +92,7 @@ Modbus slave(Serial1, SLAVE_ID, TX_PIN);
 void setup()
 {
   //For serial monitor output. Disable print statements after debugging to speed up program
-  //Serial.begin(115200); 
+//  Serial.begin(115200); 
 
   Serial1.begin(BAUD_RATE, SERIAL_8N1);
   slave.begin(BAUD_RATE);
@@ -147,8 +147,11 @@ uint8_t writeReg(uint8_t fc, uint16_t address, uint16_t length)
 {
   if(fc == FC_WRITE_REGISTER) //Writing a holding register updates the voltage on a DAC channel
   {
+    //Serial.print("1. "); Serial.print(address);
     if(address < DAC_V_LEN)
     {
+      //Serial.print("\t2. "); Serial.print(slave.readRegisterFromBuffer(0));
+      //Serial.print("\t3. "); Serial.println(DAC_V_LEN);
       updateV(slave.readRegisterFromBuffer(0), address);
       return STATUS_OK;
     }
@@ -236,10 +239,16 @@ void updateV(uint16_t newV, uint16_t address)
 {
   dacV[address] = newV < 4096 ? newV : 4095; //newV must be a 12-bit number or less
   uint8_t dacPin = PIN_ARRAY[address / 4];
-
+//  Serial.print("1. "); Serial.print(address);
+//  Serial.print("\t2. "); Serial.print(address /4);
+//  Serial.print("\t3. "); Serial.print(dacPin);
+//  Serial.print("\t4. "); Serial.print(address % 4,BIN);
+//  Serial.print("\t5. "); Serial.print((address+1) % 4,BIN);
+//  Serial.print("\t6. "); Serial.print((address % 4)+1,BIN);
+//  Serial.print("\t7. "); Serial.print(newV % 4096,BIN);
   //Creates the input register byte
-  uint16_t updateVoltageWord = (newV % 4096) + (((address+1) % 4) << 12);
-  
+  uint16_t updateVoltageWord = (newV % 4096) + (((address % 4)+1) << 12);
+//  Serial.print("\t8. "); Serial.println(updateVoltageWord, BIN);
   SPI.beginTransaction(spiSet);
   
   digitalWrite(dacPin, LOW); //Hold SYNC low on this DAC to update input register
@@ -318,16 +327,16 @@ uint16_t readV(uint16_t address)
 {
   uint8_t dacPin = PIN_ARRAY[address / 4];
   uint16_t readVWord = 0b1000000000000000 + (((address+1) % 4) << 12);
-  
+//  Serial.print("\t9. "); Serial.println(readVWord, BIN);
   SPI.beginTransaction(spiSet);
   
   digitalWrite(dacPin, LOW);
   delayMicroseconds(1);
-  uint16_t vRead = (SPI.transfer16(readVWord) << 1) % 4096;
+  uint16_t vRead = (SPI.transfer16(readVWord) << 1) % 4096; //Leftshift one to correct for reading on wrong side of clk cycle
   delayMicroseconds(1);
   digitalWrite(dacPin, HIGH);
   
   SPI.endTransaction();
-  
+//  Serial.print("\t10. "); Serial.println(vRead, BIN);
   return vRead;
 }
