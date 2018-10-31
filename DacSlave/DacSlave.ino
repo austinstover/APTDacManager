@@ -35,7 +35,7 @@ const int LDAC_PIN = 47; ///< This pin is pulsed to move data from input to DAC 
 const int CLR_PIN = 45;
 
 const uint8_t NUM_SIPM_CHANS = 1;
-const uint8_t NUM_BOARDS = 1; ///< The number of boards per SiPM channel
+const uint8_t NUM_BOARDS = 4; ///< The number of boards per SiPM channel
     
 /**
  * @brief PIN_ARRAY[] relates the DAC channel chip select outputs to specific Arduino pins.
@@ -48,7 +48,7 @@ const uint8_t NUM_BOARDS = 1; ///< The number of boards per SiPM channel
  * vIndex = address = NUM_BOARDS*4*2*sipmChan + 4*2*boardNum + 4*dacNum + dacChan
 */
 const uint8_t PIN_ARRAY_LEN = NUM_SIPM_CHANS*NUM_BOARDS*2;
-const uint8_t PIN_ARRAY[PIN_ARRAY_LEN] = {44,46};
+const uint8_t PIN_ARRAY[PIN_ARRAY_LEN] = {44,46,42,43,40,41,38,39};
 // Element index:                         0  1  2  3  4  5 ... 
 // DAC Number:                            0  1  0  1  0  1 ... 0  1  0  1
 // Board Number:                          0     1     2    ... n     n+1
