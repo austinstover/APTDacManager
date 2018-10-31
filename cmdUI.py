@@ -69,7 +69,7 @@ def init(args):
     for key,chan in addressDict.items():
         try:
             #print(*chan)
-            print('Alias: ',key,'\tChan #, DAC#: ',chan,'\tStart Val: ',dm.convertToActualV(cntrl.readV(cntrl.address(*chan))),'V', sep='')
+            print('Alias: ',key,'\tChan #, DAC #, Board #: ',chan,'\tStart Val: ',dm.convertToActualV(cntrl.readV(cntrl.address(*chan))),'V', sep='')
         except KeyError:
             print('Error: DAC channel address',key,'not found')
             exit(1)
@@ -191,7 +191,7 @@ def readV(args):
         try:
             channel = cntrl.address(*addressDict[chan])
             #print(channel)
-            print(chan,': \tV:',dm.convertToActualV(cntrl.readV(channel)))
+            print(chan,': \tV = ',dm.convertToActualV(cntrl.readV(channel)))
         except KeyError:
             print('Error: DAC channel address for',chan,'not found. See ' +
                   'DacDir.txt or the DAC directory file you specified for ' +
@@ -214,7 +214,7 @@ def updateV(args):
             channel = cntrl.address(*addressDict[chan])
             #print(channel, args.newV)
             cntrl.updateV(channel, cntrl.convertToRawV(args.newV))
-            print(chan,': \tV:',dm.convertToActualV(cntrl.readV(channel)))
+            print(chan,': \tV = ',dm.convertToActualV(cntrl.readV(channel)))
         except KeyError:
             print('Error: DAC channel address for',chan,'not found. See ' +
                   'DacDir.txt or the DAC directory file you specified for ' +
