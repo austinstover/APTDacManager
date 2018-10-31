@@ -9,9 +9,6 @@ as well as for a temperature plate.
 Use: Run python cmdUI.py
      -h for man
      On Windows, run cmd.exe as administrator
-     
-TODO: Automatically check if DACS actually turned on/off or say they are at 
-the voltages you commanded
 """
 
 from DacMaster import DacMaster as dm
@@ -71,7 +68,7 @@ def init(args):
     print('Channel List:')
     for key,chan in addressDict.items():
         try:
-            print(*chan)
+            #print(*chan)
             print('Alias: ',key,'\tChan #, DAC#: ',chan,'\tStart Val: ',dm.convertToActualV(cntrl.readV(cntrl.address(*chan))),'V', sep='')
         except KeyError:
             print('Error: DAC channel address',key,'not found')
