@@ -81,8 +81,8 @@ psr_init.add_argument('-s','--slaveId', type=int, default=0,
                          help='Choose a different slave.')
 psr_init.add_argument('-p','--port', type=str, default=COM_PORT, #TODO: Change default port
                          help='Choose a different port from ' + COM_PORT)
-psr_init.add_argument('-n','--numBoards', type=int, default=1,
-                         help='Change the number of DAC boards from 1\
+psr_init.add_argument('-n','--numBoards', type=int, default=4,
+                         help='Change the number of DAC boards from 4\
                          hooked up to the slave') #TODO: Make sure this is positive, nonzero
 psr_init.add_argument('-b','--baudrate', type=int, default=9600,
                          help='Change the baudrate from 9600') #TODO: Make sure this is positive, nonzero
