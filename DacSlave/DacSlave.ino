@@ -5,6 +5,23 @@
  * 
  * This program communicates with a computer running DacMaster.py using the Modbus 
  * RS485 protocol to manage AD5504 DACs for the APT experiment CERN prototype
+ * 
+ * Copyright (C) 2018  Austin Stover
+ * 
+ * This file is part of APTDacManager.
+ * 
+ *     APTDacManager is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ * 
+ *     APTDacManager is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ * 
+ *     You should have received a copy of the GNU General Public License
+ *     along with APTDacManager.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <SPI.h>
@@ -18,7 +35,7 @@ const int LDAC_PIN = 47; ///< This pin is pulsed to move data from input to DAC 
 const int CLR_PIN = 45;
 
 const uint8_t NUM_SIPM_CHANS = 1;
-const uint8_t NUM_BOARDS = 1; ///< The number of boards per SiPM channel
+const uint8_t NUM_BOARDS = 4; ///< The number of boards per SiPM channel
     
 /**
  * @brief PIN_ARRAY[] relates the DAC channel chip select outputs to specific Arduino pins.
@@ -31,7 +48,7 @@ const uint8_t NUM_BOARDS = 1; ///< The number of boards per SiPM channel
  * vIndex = address = NUM_BOARDS*4*2*sipmChan + 4*2*boardNum + 4*dacNum + dacChan
 */
 const uint8_t PIN_ARRAY_LEN = NUM_SIPM_CHANS*NUM_BOARDS*2;
-const uint8_t PIN_ARRAY[PIN_ARRAY_LEN] = {44,46};
+const uint8_t PIN_ARRAY[PIN_ARRAY_LEN] = {44,46,42,43,40,41,38,39};
 // Element index:                         0  1  2  3  4  5 ... 
 // DAC Number:                            0  1  0  1  0  1 ... 0  1  0  1
 // Board Number:                          0     1     2    ... n     n+1
@@ -75,7 +92,7 @@ Modbus slave(Serial1, SLAVE_ID, TX_PIN);
 void setup()
 {
   //For serial monitor output. Disable print statements after debugging to speed up program
-  //Serial.begin(115200); 
+//  Serial.begin(115200); 
 
   Serial1.begin(BAUD_RATE, SERIAL_8N1);
   slave.begin(BAUD_RATE);
@@ -130,8 +147,11 @@ uint8_t writeReg(uint8_t fc, uint16_t address, uint16_t length)
 {
   if(fc == FC_WRITE_REGISTER) //Writing a holding register updates the voltage on a DAC channel
   {
+    //Serial.print("1. "); Serial.print(address);
     if(address < DAC_V_LEN)
     {
+      //Serial.print("\t2. "); Serial.print(slave.readRegisterFromBuffer(0));
+      //Serial.print("\t3. "); Serial.println(DAC_V_LEN);
       updateV(slave.readRegisterFromBuffer(0), address);
       return STATUS_OK;
     }
@@ -219,10 +239,16 @@ void updateV(uint16_t newV, uint16_t address)
 {
   dacV[address] = newV < 4096 ? newV : 4095; //newV must be a 12-bit number or less
   uint8_t dacPin = PIN_ARRAY[address / 4];
-
+//  Serial.print("1. "); Serial.print(address);
+//  Serial.print("\t2. "); Serial.print(address /4);
+//  Serial.print("\t3. "); Serial.print(dacPin);
+//  Serial.print("\t4. "); Serial.print(address % 4,BIN);
+//  Serial.print("\t5. "); Serial.print((address+1) % 4,BIN);
+//  Serial.print("\t6. "); Serial.print((address % 4)+1,BIN);
+//  Serial.print("\t7. "); Serial.print(newV % 4096,BIN);
   //Creates the input register byte
-  uint16_t updateVoltageWord = (newV % 4096) + (((address+1) % 4) << 12);
-  
+  uint16_t updateVoltageWord = (newV % 4096) + (((address % 4)+1) << 12);
+//  Serial.print("\t8. "); Serial.println(updateVoltageWord, BIN);
   SPI.beginTransaction(spiSet);
   
   digitalWrite(dacPin, LOW); //Hold SYNC low on this DAC to update input register
@@ -300,17 +326,17 @@ bool getPower(uint16_t address)
 uint16_t readV(uint16_t address)
 {
   uint8_t dacPin = PIN_ARRAY[address / 4];
-  uint16_t readVWord = 0b1000000000000000 + (((address+1) % 4) << 12);
-  
+  uint16_t readVWord = 0b1000000000000000 + (((address % 4) + 1) << 12);
+//  Serial.print("\t9. "); Serial.println(readVWord, BIN);
   SPI.beginTransaction(spiSet);
   
   digitalWrite(dacPin, LOW);
   delayMicroseconds(1);
-  uint16_t vRead = (SPI.transfer16(readVWord) << 1) % 4096;
+  uint16_t vRead = (SPI.transfer16(readVWord) << 1) % 4096; //Leftshift one to correct for reading on wrong side of clk cycle
   delayMicroseconds(1);
   digitalWrite(dacPin, HIGH);
   
   SPI.endTransaction();
-  
+//  Serial.print("\t10. "); Serial.println(vRead, BIN);
   return vRead;
 }
