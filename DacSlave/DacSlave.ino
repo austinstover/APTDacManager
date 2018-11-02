@@ -326,7 +326,7 @@ bool getPower(uint16_t address)
 uint16_t readV(uint16_t address)
 {
   uint8_t dacPin = PIN_ARRAY[address / 4];
-  uint16_t readVWord = 0b1000000000000000 + (((address+1) % 4) << 12);
+  uint16_t readVWord = 0b1000000000000000 + (((address % 4) + 1) << 12);
 //  Serial.print("\t9. "); Serial.println(readVWord, BIN);
   SPI.beginTransaction(spiSet);
   
