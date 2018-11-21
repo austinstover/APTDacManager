@@ -46,7 +46,7 @@ def get_fahrenheit_val():
 def get_celsius_val(): 
 	data = bus.read_i2c_block_data(address, 1,2)
 	val = (data[0] << 8) + data[1]
-	tCorrectionF = 5/9 * -57
+	tCorrectionC = 5/9 * -57
 	return val/5.00 + tCorrectionC
 
 
