@@ -32,7 +32,7 @@ v0.4 comes with a brand new command line interface to control all of the DACs. T
   - readV
   - updateV
   
-To run the command line interface on raspbian, type "python cmdUI.py [-h] {subroutine name} {DAC Alias 1} {DAC Alias 2} ... {DAC Alias N}:" in the directory with cmdUI.py.
+To run the command line interface on raspbian, type "python3 cmdUI.py [-h] {subroutine name} {DAC Alias 1} {DAC Alias 2} ... {DAC Alias N}:" in the directory with cmdUI.py.
 
 The DacDir.txt file specifies the list of available DAC aliases and their respective channel numbers (0-3), DAC numbers (0-1), and board numbers (0-3 by default). Using "all" or "ALL" as the alias will apply the command to all DACs in DacDir.txt.
 
