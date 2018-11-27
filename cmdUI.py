@@ -77,7 +77,7 @@ def init(args):
 
 psr_init = subpsrs.add_parser('init', #aliases=['in']
                                     help='Initialize DAC communications')
-psr_init.add_argument('-s','--slaveId', type=int, default=0,
+psr_init.add_argument('-s','--slaveId', type=int, default=1,
                          help='Choose a different slave.')
 psr_init.add_argument('-p','--port', type=str, default=COM_PORT, #TODO: Change default port
                          help='Choose a different port from ' + COM_PORT)

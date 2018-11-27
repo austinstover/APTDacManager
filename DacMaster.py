@@ -138,7 +138,7 @@ def main():
     register on the DAC.
     """
     slaveId = 0
-    port = 'COM4'
+    port = 'COM13'
     baudrate = 9600
     dacChan = 0
     dacNum = 0
