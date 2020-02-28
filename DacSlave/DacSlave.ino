@@ -27,34 +27,27 @@
 #include <SPI.h>
 #include <ModbusSlave.h>
 
-const int SLAVE_ID = 0; ///< This specifies which Arduino to which the master will talk
+const int SLAVE_ID = 0; ///< This specifies to which Arduino the master will talk
 const int BAUD_RATE = 9600;
 
 const int TX_PIN = 2; ///< This is the DE/RE pin for the Serial to RS485 converter
 const int LDAC_PIN = 47; ///< This pin is pulsed to move data from input to DAC register
 const int CLR_PIN = 45;
 
-const uint8_t NUM_SIPM_CHANS = 1;
-const uint8_t NUM_BOARDS = 4; ///< The number of boards per SiPM channel
+const int ENABLE_PIN = 46; ///< This pin enables the decoder. It is active low.
+
     
 /**
  * @brief PIN_ARRAY[] relates the DAC channel chip select outputs to specific Arduino pins.
  * 
- * There is 1 pin per DAC and 2 DACs per board, NUM_BOARDS per SiPM channel, and
- * NUM_SIPM_CHANS SiPM channels overall. The first 2 pins in the array therefore denote 
- * DAC pins (chip selects) 0 and 1 on board 0. The next two pins are 0 and 1 on board 1,
- * etc. as illustrated below, where n=NUM_BOARDS. The element index is related to these 
- * parameters by the following equation:
- * vIndex = address = NUM_BOARDS*4*2*sipmChan + 4*2*boardNum + 4*dacNum + dacChan
+ * There are 7 output bits from the Arduino to the chip select decoder, which are on the
+ * pins in this list.
 */
-const uint8_t PIN_ARRAY_LEN = NUM_SIPM_CHANS*NUM_BOARDS*2;
-const uint8_t PIN_ARRAY[PIN_ARRAY_LEN] = {44,46,42,43,40,41,38,39};
-// Element index:                         0  1  2  3  4  5 ... 
-// DAC Number:                            0  1  0  1  0  1 ... 0  1  0  1
-// Board Number:                          0     1     2    ... n     n+1
-// SiPM Channel:                          0                    1
+const uint8_t DAC_ADDR_LEN = 7;
+const uint8_t PIN_ARRAY[DAC_ADDR_LEN] = {38,39,40,41,42,43,44}; //Decoder pins for addressing DACs
+// Bit:                                   0  1  2  3  4  5  6  (2^7 addresses)
 
-const uint16_t CONTROL_ARRAY_LEN = NUM_SIPM_CHANS*NUM_BOARDS*2;
+const uint16_t CONTROL_ARRAY_LEN = pow(2,DAC_ADDR_LEN);
 
 /**
  * @brief controlArray[] elements are numbered the same way as PIN_ARRAY[] elements
@@ -67,27 +60,30 @@ uint16_t controlArray[CONTROL_ARRAY_LEN]; //Saves the states of the control regi
     
 const SPISettings spiSet{9000000, MSBFIRST, SPI_MODE0};
 
-
-const uint16_t DAC_V_LEN = NUM_SIPM_CHANS*NUM_BOARDS*2*4;
+const uint16_t DAC_V_LEN = 4*pow(2,DAC_ADDR_LEN);
 
 /**
  * @brief dacV[] holds the voltage for each DAC channel
  * 
  * There are 4 times as many entries in this array as there are in PIN_ARRAY[] or 
- * controlArray[], since there are 4 channels per DAC. There are therefore 4 elements
- * per DAC number, as illustrated. To get the controlArray element from the dacV
- * element, just integer divide by 4. The DAC channel can also be determined from the
- * dacV element by performing modulo 4 on the element #.
- */
+ * controlArray[], since there are 4 channels per DAC. To get the controlArray
+ * element from the address, just integer divide by 4.
+*/
+// * 
+// * There are therefore 4 elements
+// * per DAC number, as illustrated. To get the controlArray element from the dacV
+// * element, just integer divide by 4. The DAC channel can also be determined from the
+// * dacV element by performing modulo 4 on the element #.
+// */
 uint16_t dacV[DAC_V_LEN] = { 0 }; //Init all Vs to 0
-// Element index:            0  1  2  3  4  5  6  7  8 ...
+// Element index:            0  1  2  3  4  5  6  7  8 ... 
 // DAC Channel:              0  1  2  3  0  1  2  3  0 ...
 // DAC Number:               0           1           0 ...
 // Board Number:             0                       1 ...
 // SiPM Channel:             0                         ...
 
 //Connect the RS485 communication line to the below Serial port
-Modbus slave(Serial1, SLAVE_ID, TX_PIN); 
+Modbus slave(Serial1, SLAVE_ID, TX_PIN);
 
 void setup()
 {
@@ -105,16 +101,25 @@ void setup()
   digitalWrite(LDAC_PIN, HIGH);
   pinMode(CLR_PIN, OUTPUT);
   digitalWrite(CLR_PIN, HIGH);
+
+  pinMode(ENABLE_PIN, OUTPUT);
+  digitalWrite(ENABLE_PIN, LOW); //Enable the decoder
   
   for(int i = 0; i < CONTROL_ARRAY_LEN; i++)
   { //Initialize control register commands to all Dacs off
     controlArray[i] = 0b0111000000000000;
   }
-  for(int j = 0; j < PIN_ARRAY_LEN; j++)
-  { //Initialize chip select pins
+  
+  //Initialize decoder pins
+  for(int j = 0; j < DAC_ADDR_LEN; j++)
+  { 
     pinMode(PIN_ARRAY[j], OUTPUT);
-    digitalWrite(PIN_ARRAY[j], HIGH);
+    digitalWrite(PIN_ARRAY[j], LOW);
   }
+  
+  //Initialize chip selects
+  pinMode(ENABLE_PIN, OUTPUT);
+  digitalWrite(ENABLE_PIN, HIGH); //Start with all CS disabled
   
   SPI.begin();
 
@@ -238,7 +243,6 @@ uint8_t readCoil(uint8_t fc, uint16_t address, uint16_t length)
 void updateV(uint16_t newV, uint16_t address)
 {
   dacV[address] = newV < 4096 ? newV : 4095; //newV must be a 12-bit number or less
-  uint8_t dacPin = PIN_ARRAY[address / 4];
 //  Serial.print("1. "); Serial.print(address);
 //  Serial.print("\t2. "); Serial.print(address /4);
 //  Serial.print("\t3. "); Serial.print(dacPin);
@@ -251,11 +255,9 @@ void updateV(uint16_t newV, uint16_t address)
 //  Serial.print("\t8. "); Serial.println(updateVoltageWord, BIN);
   SPI.beginTransaction(spiSet);
   
-  digitalWrite(dacPin, LOW); //Hold SYNC low on this DAC to update input register
-  delayMicroseconds(1);
+  startSelect(address); //Start a chip select
   SPI.transfer16(updateVoltageWord);
-  delayMicroseconds(1);
-  digitalWrite(dacPin, HIGH);
+  endSelect();
   
   digitalWrite(LDAC_PIN, LOW); //Write input register data to DAC register by pulsing LDAC
   delayMicroseconds(1);
@@ -282,23 +284,21 @@ void power(bool powerOn, uint16_t address)
 {
   //This is the saved control register value for the DAC
   uint16_t powWord = controlArray[address / 4];
-  uint16_t dacPin = PIN_ARRAY[address / 4];
 
   //This byte picks out the power-up/down bit for the DAC channel
   uint16_t bitLoc = _BV(address % 4 + 2);
 
   //If you want to power up the channel, set the bit to 1; else 0
   powWord = powerOn ? powWord | bitLoc : powWord & ~bitLoc;
+  
   //Now save the control register value
   controlArray[address / 4] = powWord;
   
   SPI.beginTransaction(spiSet);
   
-  digitalWrite(dacPin, LOW);
-  delayMicroseconds(1);
+  startSelect(address);
   SPI.transfer16(powWord);
-  delayMicroseconds(1);
-  digitalWrite(dacPin, HIGH);
+  endSelect();
   
   SPI.endTransaction();
 }
@@ -325,18 +325,38 @@ bool getPower(uint16_t address)
  */
 uint16_t readV(uint16_t address)
 {
-  uint8_t dacPin = PIN_ARRAY[address / 4];
   uint16_t readVWord = 0b1000000000000000 + (((address % 4) + 1) << 12);
 //  Serial.print("\t9. "); Serial.println(readVWord, BIN);
+
   SPI.beginTransaction(spiSet);
   
-  digitalWrite(dacPin, LOW);
-  delayMicroseconds(1);
+  startSelect(address);
   uint16_t vRead = (SPI.transfer16(readVWord) << 1) % 4096; //Leftshift one to correct for reading on wrong side of clk cycle
-  delayMicroseconds(1);
-  digitalWrite(dacPin, HIGH);
+  endSelect();
   
   SPI.endTransaction();
 //  Serial.print("\t10. "); Serial.println(vRead, BIN);
   return vRead;
+}
+
+/**
+ * Perform a chip select on the desired DAC. You can perform SPI transfers directly after this, and should start the SPI transactions before.
+ */
+void startSelect(uint16_t address)
+{
+  uint16_t dac_addr = address/4;
+  for(uint8_t i=0; i<DAC_ADDR_LEN; i++)
+  {
+    digitalWrite(PIN_ARRAY[i], bitRead(dac_addr, i)); //Turns on/off decoder pins that are a binary 1/0 in the address.
+  }
+  delayMicroseconds(1);
+}
+
+/**
+ * Finish a chip select on the desired DAC. You should perform any SPI transfers directly before this and end the SPI transaction afterwards.
+ */
+void endSelect()
+{
+  delayMicroseconds(1);
+  digitalWrite(ENABLE_PIN, HIGH);
 }

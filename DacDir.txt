@@ -2,25 +2,20 @@
 # Author: Austin Stover
 # Date: October 2018
 #
-# This file relates the channel input in the command line DAC controller to a DAC output's
-# channel, dac number, and board number
+# This file allows you to input an alias in the command line for each DAC channel.
 #
-# The first column denotes the command line channel value
-# 	Acceptable values: Any string input
+# The first column accepts the command line DAC channel alias
+# 	Acceptable values: Any string input (without spaces, tabs, or the '#' character)
 #
-# The second column denotes the true channel on an individual DAC
-#	Acceptable values: 0-3
+# The second column must be an address for the DAC (2 DACs per board).
+#	Acceptable values: 0 - (2^7-1)
 #
-# The third column determines which DAC on the board is controlled
-#	Acceptable values: 0-1
+# The third column determines which DAC on the board is controlled: the DAC channel number.
+#	Acceptable values: 0 - 3
 #
-# The fourth column (optional) denotes the DAC board number on the Arduino. The default
-# is board 0
-# 	Acceptable values: 0-inf
-#
-# '#' denotes a comment. Empty lines will be ignored.
+# '#' denotes a comment. Empty lines will be ignored. TAB or ' ' denotes a separator.
 
-# Cmd Line Add   |   DAC Chan   |   DAC Num   |   DAC Board (Optional)   |
+# Cmd Line Alias   |   DAC Addr   |   DAC Channel Num   |
 # Dac 1:
 	A1		0		0
 	A2		2		1
@@ -31,29 +26,29 @@
 	A7		1		0
 	A8		3		1
 #Dac 2
-	B1		0		0		1
-	B2		2		1		1
-	B3		2		0		1
-	B4		0		1		1 
-	B5		3		0		1
-	B6		1		1		1
-	B7		1		0		1
-	B8		3		1		1
+	B1		0		0
+	B2		2		1
+	B3		2		0
+	B4		0		1 
+	B5		3		0
+	B6		1		1
+	B7		1		0
+	B8		3		1
 #Dac 3
-	C1		0		0		2
-	C2		2		1		2
-	C3		2		0		2
-	C4		0		1		2 
-	C5		3		0		2
-	C6		1		1		2
-	C7		1		0		2
-	C8		3		1		2
+	C1		0		0
+	C2		2		1
+	C3		2		0
+	C4		0		1 
+	C5		3		0
+	C6		1		1
+	C7		1		0
+	C8		3		1
 #Dac 4
-	D1		0		0		3
-	D2		2		1		3
-	D3		2		0		3
-	D4		0		1		3 
-	D5		3		0		3
-	D6		1		1		3
-	D7		1		0		3
-	D8		3		1		3
+	D1		0		0
+	D2		2		1
+	D3		2		0
+	D4		0		1 
+	D5		3		0
+	D6		1		1
+	D7		1		0
+	D8		3		1

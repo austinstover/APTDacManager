@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/python3
 """
 :author: Austin Stover
 :date: September-October 2018
@@ -54,7 +54,12 @@ def init(args):
             if line.strip(): # If a non-blank line
                 entries = []
                 entries = tuple(line.split())
-                addressDict[entries[0]] = tuple(int(i) for i in entries[1:])  #Add or update key-val pair      #TODO: Throw error when only 1 word exists on line i.e. entries[1:] is empty
+                
+                # Create a dictionary whose key is the DAC board address alias 
+                # and whose value is a tuple of the tab- or space-separated 
+                # entries in the DAC directory file. These entries are the
+                # inputs to the `chanAddr` function in DacMaster.py
+                addressDict[entries[0]] = tuple(int(i) for i in entries[1:])  #TODO: Throw error when only 1 word exists on line i.e. entries[1:] is empty
                 #print("Entries:",entries[0])
                 
     persisting_vars = (args.slaveId, args.port, args.baudrate, args.numBoards, addressDict) #A tuple of vars to store in between commands

@@ -44,70 +44,81 @@ class DacMaster:
         self.slave = mb.Instrument(port, slaveId)
         self.numBoards = numBoards
         
-    def updateV(self, address, newRawV):
+    def updateV(self, chanAddr, newRawV):
         """Updates the voltage in the DAC channel input register, then updates the DAC
         register by pulsing the LDAC pin. The DAC channel must then be powered on to
         output the voltage.
 
         :param newV: The raw integer voltage with which to update the DAC channel
-        :param address: The address of the DAC channel
+        :param chanAddr: The address of the DAC channel
         """
-        self.slave.write_register(address, newRawV, functioncode=6)
+        self.slave.write_register(chanAddr, newRawV, functioncode=6)
 
-    def getV(self, address):
+    def getV(self, chanAddr):
         """Returns the voltage for the DAC channel in the slave holding register
 
-        :param address: The address of the DAC channel
+        :param chanAddr: The address of the DAC channel
         :returns: The voltage held in the slave
         """
-        return self.slave.read_register(address, functioncode=3)
+        return self.slave.read_register(chanAddr, functioncode=3)
 
-    def readV(self, address):
+    def readV(self, chanAddr):
         """Should return the approximate DAC input register voltage
         WARNING: This may not return the exact voltage held in the input register, since
         the slave is reading the DAC on the wrong side of the CLK signal. This method
         should only be used to check the DAC is operating in general, but not for
         exact reads.
             
-        :param address: The address of the DAC channel
+        :param chanAddr: The address of the DAC channel
         :returns: The approximate voltage in the DAC channel input register
         """
-        return self.slave.read_register(address, functioncode=4)
+        return self.slave.read_register(chanAddr, functioncode=4)
 
-    def powerUp(self, address):
+    def powerUp(self, chanAddr):
         """Powers on the DAC channel analog output.
         
-        :param address: The address of the DAC channel
+        :param chanAddr: The address of the DAC channel
         """
-        self.slave.write_bit(address, 1, functioncode=5)
+        self.slave.write_bit(chanAddr, 1, functioncode=5)
 
-    def powerDown(self, address):
+    def powerDown(self, chanAddr):
         """Powers off the DAC channel analog output
         
-        :param address: The address of the DAC channel
+        :param chanAddr: The address of the DAC channel
         """
-        self.slave.write_bit(address, 0, functioncode=5)
+        self.slave.write_bit(chanAddr, 0, functioncode=5)
 
-    def getPower(self, address):
+    def getPower(self, chanAddr):
         """Returns whether power to the DAC channel analog output
         is on or off in the slave coil
         
-        :param address: The address of the DAC channel
+        :param chanAddr: The address of the DAC channel
         :returns: True if power to the analog channel was switched on; False if it
             was switched off. The DACs default to off.
         """
-        return self.slave.read_bit(address, functioncode=1)
+        return self.slave.read_bit(chanAddr, functioncode=1)
                                    
-    def address(self, dacChan, dacNum, boardNum=0, sipmChan=0):
-        """Outputs the address to use given the DAC channel IDs
+    def chanAddr(self, boardAddress, dacNum):
+        """Outputs the address to use given the DAC board address and DAC
+        number on that board. The board address is the input to the chip select
+        decoder.
 
-        :param dacChan: Specifies the channel on the DAC (0-3)
-        :param dacNum: Specifies the DAC on the board (0-1)
-        :param boardNum: Specifies the board
-        :param sipmChan: Specifies the SiPM channel
+        :param boardAddress: Specifies the channel on the DAC (0 through 2^7-1)
+        :param dacNum: Specifies the DAC on the board (0 through 3)
         :returns: The DAC channel address
         """
-        return self.numBoards*4*2*sipmChan + (4*2*boardNum + (4*dacNum + dacChan))
+        return 4*boardAddress + dacNum #self.numBoards*4*2*sipmChan + (4*2*boardNum + (4*dacNum + dacChan))
+    
+#    def address(self, dacChan, dacNum, boardNum=0, sipmChan=0):
+#        """Outputs the address to use given the DAC channel IDs
+#
+#        :param dacChan: Specifies the channel on the DAC (0-3)
+#        :param dacNum: Specifies the DAC on the board (0-1)
+#        :param boardNum: Specifies the board
+#        :param sipmChan: Specifies the SiPM channel
+#        :returns: The DAC channel address
+#        """
+#        return %self.numBoards*4*2*sipmChan + (4*2*boardNum + (4*dacNum + dacChan))
 
     @staticmethod
     def convertToActualV(rawV):
@@ -150,7 +161,7 @@ def main():
     
     '''Gets the address for the DAC based on the current DAC channel, number, board, and
     SiPM channel'''
-    dacAddress = cntrl.address(dacChan, dacNum)
+    dacAddress = cntrl.chanAddr(dacChan, dacNum)
 
     print("dacAddress: ", dacAddress)
     cntrl.updateV(dacAddress, rawV)
