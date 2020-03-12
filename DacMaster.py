@@ -24,6 +24,7 @@ This file is part of APTDacManager.
 '''
 
 import minimalmodbus as mb
+import serial
 #mb.CLOSE_PORT_AFTER_EACH_CALL=True
 
 class DacMaster:
@@ -39,9 +40,12 @@ class DacMaster:
     """
     
     def __init__(self, slaveId, port, baudrate, numBoards=1, timeout=0.05):
-        mb.BAUDRATE = baudrate
-        mb.TIMEOUT = timeout
         self.slave = mb.Instrument(port, slaveId)
+        self.slave.serial.baudrate = baudrate
+        self.slave.serial.timeout = timeout
+        self.slave.serial.bytesize = 8
+        self.slave.serial.parity = serial.PARITY_NONE
+        self.slave.serial.stopbits = 1
         self.numBoards = numBoards
         
     def updateV(self, address, newRawV):
