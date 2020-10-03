@@ -1,0 +1,19 @@
+# Temperature Controller Directory Example
+# Author: Austin Stover
+# Date: September 2020
+#
+# This file relates the 64-bit temperature controller serial codes to command-line aliases
+#
+# The first column denotes the command line temperature controller alias
+# 	Acceptable values: Any string input
+#
+# The second column denotes the 16 character decimal or hex value for the 64-bit serial code.
+# Use '0x' in front of the digits to specify a hex input.
+#	Acceptable values: 0-9, A-F, a-f, 0x
+#
+# '#' denotes a comment. Empty lines will be ignored.
+
+# Cmd Line Alias  |  Serial Code Hex  |
+	T1		0x1028a60a000ce300
+	T2		0xf628a5f8000cd500
+	T3		0x2e28a6a8000cad00

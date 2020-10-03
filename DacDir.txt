@@ -5,31 +5,31 @@
 # This file relates the channel input in the command line DAC controller to a DAC output's
 # channel, dac number, and board number
 #
-# The first column denotes the command line channel value
+# The first column denotes the command line channel alias
 # 	Acceptable values: Any string input
 #
-# The second column denotes the true channel on an individual DAC
+# The second column denotes the channel number on an individual DAC chip
 #	Acceptable values: 0-3
 #
 # The third column determines which DAC on the board is controlled
 #	Acceptable values: 0-1
 #
 # The fourth column (optional) denotes the DAC board number on the Arduino. The default
-# is board 0
+# is 0
 # 	Acceptable values: 0-inf
 #
 # '#' denotes a comment. Empty lines will be ignored.
 
 # Cmd Line Add   |   DAC Chan   |   DAC Num   |   DAC Board (Optional)   |
 # Dac 1:
-	A1		0		0
-	A2		2		1
-	A3		2		0
-	A4		0		1 #J7
-	A5		3		0
-	A6		1		1
-	A7		1		0
-	A8		3		1
+	A1		0		0		0
+	A2		2		1		0
+	A3		2		0		0	
+	A4		0		1		0
+	A5		3		0		0
+	A6		1		1		0
+	A7		1		0		0
+	A8		3		1		0
 #Dac 2
 	B1		0		0		1
 	B2		2		1		1
