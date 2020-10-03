@@ -9,8 +9,18 @@ APTDacManager's documentation
 ..  toctree::
     :maxdepth: 2
     :caption: Contents:
+	
 
-CPU Master Code
+Command Line Interface
+=========================================
+
+.. argparse::
+   :module: cmdUI
+   :func: return_parser
+   :prog: python -m cmdUI
+   
+
+CPU Manager Code
 =========================================
 ..	module:: DacMaster
 ..  autoclass:: DacMaster
@@ -18,7 +28,7 @@ CPU Master Code
 
 
 
-Arduino Slave Code :ref:`[src]<src>`
+Arduino Manager Code :ref:`[src]<src>`
 =========================================
 
 ..  doxygenfile:: DacSlave.ino

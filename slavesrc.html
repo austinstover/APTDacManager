@@ -1,0 +1,672 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Arduino Slave Source &mdash; APTDacManager 0.5.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> APTDacManager
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Arduino Slave Source</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">APTDacManager</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Arduino Slave Source</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/slavesrc.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="toctree-wrapper compound">
+</div>
+<div class="section" id="arduino-slave-source">
+<h1>Arduino Slave Source<a class="headerlink" href="#arduino-slave-source" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-C++ notranslate"><div class="highlight"><pre><span></span><span class="cm">/**</span>
+<span class="cm"> * @file DacSlave.ino</span>
+<span class="cm"> * @author Austin Stover</span>
+<span class="cm"> * @date June 2018</span>
+<span class="cm"> * </span>
+<span class="cm"> * This program communicates with a computer running DacMaster.py using the Modbus </span>
+<span class="cm"> * RS485 protocol to manage AD5504 DACs for the APT experiment. Now includes the</span>
+<span class="cm"> * ability to query several DS18B20 temperature sensors and report entire 64-bit addresses.</span>
+<span class="cm"> * </span>
+<span class="cm"> * Copyright (C) 2018  Austin Stover</span>
+<span class="cm"> * </span>
+<span class="cm"> * This file is part of APTDacManager.</span>
+<span class="cm"> * </span>
+<span class="cm"> *     APTDacManager is free software: you can redistribute it and/or modify</span>
+<span class="cm"> *     it under the terms of the GNU General Public License as published by</span>
+<span class="cm"> *     the Free Software Foundation, either version 3 of the License, or</span>
+<span class="cm"> *     (at your option) any later version.</span>
+<span class="cm"> * </span>
+<span class="cm"> *     APTDacManager is distributed in the hope that it will be useful,</span>
+<span class="cm"> *     but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="cm"> *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="cm"> *     GNU General Public License for more details.</span>
+<span class="cm"> * </span>
+<span class="cm"> *     You should have received a copy of the GNU General Public License</span>
+<span class="cm"> *     along with APTDacManager.  If not, see &lt;https://www.gnu.org/licenses/&gt;.</span>
+<span class="cm"> */</span>
+
+<span class="cp">#include</span> <span class="cpf">&lt;SPI.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;ModbusSlave.h&gt;</span><span class="c1"> //Custom library</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;OneWire.h&gt;</span><span class="c1"> </span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;DallasTemperature.h&gt;</span><span class="cp"></span>
+<span class="cp">#define TEMP_DEVICE_DISCONNECTED_RAW -7040</span>
+<span class="c1">//typedef uint8_t TempAddr[8]; //The address type for the temp sensors, which have their own addressing system</span>
+
+<span class="k">typedef</span> <span class="k">union</span>
+<span class="p">{</span>
+  <span class="kt">uint8_t</span>  <span class="n">bytes</span><span class="p">[</span><span class="mi">8</span><span class="p">];</span>  <span class="c1">//Represent as bytes for use with the DallasTemperature library</span>
+  <span class="kt">uint16_t</span> <span class="n">shorts</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span> <span class="c1">//Represent as 16 bit ints for sending over SPI</span>
+<span class="p">}</span> <span class="n">TempAddr</span><span class="p">;</span>
+
+
+<span class="k">const</span> <span class="kt">int</span> <span class="n">SLAVE_ID</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>        <span class="c1">///&lt; This specifies which Arduino to which the master will talk</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">BAUD_RATE</span> <span class="o">=</span> <span class="mi">9600</span><span class="p">;</span>
+
+<span class="k">const</span> <span class="kt">int</span> <span class="n">TX_PIN</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>          <span class="c1">///&lt; This is the DE/RE pin for the Serial to RS485 converter</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">LDAC_PIN</span> <span class="o">=</span> <span class="mi">47</span><span class="p">;</span>       <span class="c1">///&lt; This pin is pulsed to move data from input to DAC register</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">CLR_PIN</span> <span class="o">=</span> <span class="mi">45</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">int</span> <span class="n">TEMP_BUS_PIN</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>    <span class="c1">///&lt; The data pin for the temperature sensor data bus</span>
+
+<span class="k">const</span> <span class="kt">uint8_t</span> <span class="n">NUM_BOARDS</span> <span class="o">=</span> <span class="mi">4</span><span class="p">;</span>  <span class="c1">///&lt; Max number of DAC boards to connect to</span>
+<span class="k">const</span> <span class="kt">uint8_t</span> <span class="n">NUM_TEMPS</span>  <span class="o">=</span> <span class="mi">16</span><span class="p">;</span> <span class="c1">///&lt; Max number of temperature sensors on the bus</span>
+
+<span class="c1">// NOTE: On the Arduino Mega 2560, pin 52 = SCK, 50 = MISO, 51 = MOSI, 53 = SS (So must be left alone during SPI comm)</span>
+    
+<span class="cm">/**</span>
+<span class="cm"> * @brief CS_ARRAY[] relates the DAC channel chip select outputs to specific Arduino pins.</span>
+<span class="cm"> * </span>
+<span class="cm"> * There is 1 pin per DAC and 2 DACs per board, and NUM_BOARDS DAC boards. The first 2 </span>
+<span class="cm"> * pins in the array therefore denote the chip selects for DACs 0 and 1 on board 0. The </span>
+<span class="cm"> * next two pins are 0 and 1 on board 1, etc. as illustrated below. The element index</span>
+<span class="cm"> * is related to these parameters by the following equation:</span>
+<span class="cm"> * dacV Index = address = 4*2*boardNum + 4*dacNum + dacChan</span>
+<span class="cm">*/</span>
+<span class="k">const</span> <span class="kt">uint8_t</span> <span class="n">CS_ARRAY_LEN</span> <span class="o">=</span> <span class="n">NUM_BOARDS</span><span class="o">*</span><span class="mi">2</span><span class="p">;</span>
+<span class="k">const</span> <span class="kt">uint8_t</span> <span class="n">CS_ARRAY</span><span class="p">[</span><span class="n">CS_ARRAY_LEN</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">46</span><span class="p">,</span><span class="mi">44</span><span class="p">,</span><span class="mi">43</span><span class="p">,</span><span class="mi">42</span><span class="p">,</span><span class="mi">41</span><span class="p">,</span><span class="mi">40</span><span class="p">,</span><span class="mi">39</span><span class="p">,</span><span class="mi">38</span><span class="p">};</span>
+<span class="c1">// Element index:                        0  1  2  3  4  5 ... </span>
+<span class="c1">// DAC Number:                           0  1  0  1  0  1 ... 0  1</span>
+<span class="c1">// Board Number:                         0     1     2    ... n</span>
+
+<span class="k">const</span> <span class="kt">uint16_t</span> <span class="n">CONTROL_ARRAY_LEN</span> <span class="o">=</span> <span class="n">NUM_BOARDS</span><span class="o">*</span><span class="mi">2</span><span class="p">;</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * @brief controlArray[] saves the states of the DAC control registers in the Arduino.</span>
+<span class="cm"> * </span>
+<span class="cm"> * controlArray elements are numbered the same way as CS_ARRAY[] elements.</span>
+<span class="cm"> * controlArray[i] denotes the same DAC channel as CS_ARRAY[i]. The element index is</span>
+<span class="cm"> * related to its parameters by the following equation (using integer division):</span>
+<span class="cm"> * controlArray Index = address / 4 = 2*boardNum + dacNum</span>
+<span class="cm"> */</span>
+<span class="kt">uint16_t</span> <span class="n">controlArray</span><span class="p">[</span><span class="n">CONTROL_ARRAY_LEN</span><span class="p">];</span> <span class="c1">//Saves the states of the control registers</span>
+    
+<span class="k">const</span> <span class="n">SPISettings</span> <span class="n">spiSet</span><span class="p">{</span><span class="mi">125000</span><span class="p">,</span> <span class="n">MSBFIRST</span><span class="p">,</span> <span class="n">SPI_MODE0</span><span class="p">};</span>
+
+
+<span class="k">const</span> <span class="kt">uint16_t</span> <span class="n">DAC_V_LEN</span> <span class="o">=</span> <span class="n">NUM_BOARDS</span><span class="o">*</span><span class="mi">2</span><span class="o">*</span><span class="mi">4</span><span class="p">;</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * @brief dacV[] holds the voltage for each DAC channel</span>
+<span class="cm"> * </span>
+<span class="cm"> * There are 4 times as many entries in this array as there are in CS_ARRAY[] or </span>
+<span class="cm"> * controlArray[], since there are 4 channels per DAC. There are therefore 4 elements</span>
+<span class="cm"> * per DAC number, as illustrated. To get the controlArray element from the dacV</span>
+<span class="cm"> * element, just integer divide by 4. The DAC channel can also be determined from the</span>
+<span class="cm"> * dacV element by performing modulo 4 on the element #.</span>
+<span class="cm"> */</span>
+<span class="kt">uint16_t</span> <span class="n">dacV</span><span class="p">[</span><span class="n">DAC_V_LEN</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span> <span class="mi">0</span> <span class="p">};</span> <span class="c1">//Init all Vs to 0</span>
+<span class="c1">// Element index:            0  1  2  3  4  5  6  7  8 ...</span>
+<span class="c1">// DAC Channel:              0  1  2  3  0  1  2  3  0 ...</span>
+<span class="c1">// DAC Number:               0           1           0 ...</span>
+<span class="c1">// Board Number:             0                       1 ...</span>
+
+
+<span class="k">const</span> <span class="kt">uint16_t</span> <span class="n">TEMP_ADDR_ARRAY_LEN</span> <span class="o">=</span> <span class="n">NUM_TEMPS</span><span class="p">;</span>
+<span class="cm">/**</span>
+<span class="cm"> * @brief tempAddrArray holds the temperature sensor addresses for each index</span>
+<span class="cm"> * </span>
+<span class="cm"> * The 0th element holds the address for index 0: the closest temperature sensor to</span>
+<span class="cm"> * the Arduino on the bus</span>
+<span class="cm"> */</span>
+<span class="n">TempAddr</span> <span class="n">tempAddrArray</span><span class="p">[</span><span class="n">TEMP_ADDR_ARRAY_LEN</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span> <span class="mi">0</span> <span class="p">};</span>
+
+
+<span class="c1">//Connect the RS485 communication line to the below Serial port</span>
+<span class="n">Modbus</span> <span class="nf">slave</span><span class="p">(</span><span class="n">Serial1</span><span class="p">,</span> <span class="n">SLAVE_ID</span><span class="p">,</span> <span class="n">TX_PIN</span><span class="p">);</span>
+
+<span class="c1">//Setup DS18B20 temperature sensors</span>
+<span class="n">OneWire</span> <span class="nf">oneWire</span><span class="p">(</span><span class="n">TEMP_BUS_PIN</span><span class="p">);</span> 
+<span class="n">DallasTemperature</span> <span class="nf">temp_sensors</span><span class="p">(</span><span class="o">&amp;</span><span class="n">oneWire</span><span class="p">);</span>
+
+
+<span class="kt">void</span> <span class="nf">setup</span><span class="p">()</span>
+<span class="p">{</span>
+  <span class="c1">//For serial monitor output. Disable print statements after debugging to speed up program</span>
+  <span class="c1">//Serial.begin(115200); </span>
+
+  <span class="n">Serial1</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="n">BAUD_RATE</span><span class="p">,</span> <span class="n">SERIAL_8N1</span><span class="p">);</span>
+  <span class="n">slave</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="n">BAUD_RATE</span><span class="p">);</span>
+
+  <span class="c1">//Initialize TX_PIN to receive messages</span>
+  <span class="n">pinMode</span><span class="p">(</span><span class="n">TX_PIN</span><span class="p">,</span> <span class="n">OUTPUT</span><span class="p">);</span>
+  <span class="n">digitalWrite</span><span class="p">(</span><span class="n">TX_PIN</span><span class="p">,</span> <span class="n">LOW</span><span class="p">);</span>
+  <span class="c1">//Initialize other pins</span>
+  <span class="n">pinMode</span><span class="p">(</span><span class="n">LDAC_PIN</span><span class="p">,</span> <span class="n">OUTPUT</span><span class="p">);</span>
+  <span class="n">digitalWrite</span><span class="p">(</span><span class="n">LDAC_PIN</span><span class="p">,</span> <span class="n">HIGH</span><span class="p">);</span>
+  <span class="n">pinMode</span><span class="p">(</span><span class="n">CLR_PIN</span><span class="p">,</span> <span class="n">OUTPUT</span><span class="p">);</span>
+  <span class="n">digitalWrite</span><span class="p">(</span><span class="n">CLR_PIN</span><span class="p">,</span> <span class="n">HIGH</span><span class="p">);</span>
+  
+  <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">CONTROL_ARRAY_LEN</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+  <span class="p">{</span> <span class="c1">//Initialize control register commands to all Dacs off</span>
+    <span class="n">controlArray</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mb">0b0111000000000000</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">CS_ARRAY_LEN</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+  <span class="p">{</span> <span class="c1">//Initialize chip select pins</span>
+    <span class="n">pinMode</span><span class="p">(</span><span class="n">CS_ARRAY</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">OUTPUT</span><span class="p">);</span>
+    <span class="n">digitalWrite</span><span class="p">(</span><span class="n">CS_ARRAY</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">HIGH</span><span class="p">);</span>
+  <span class="p">}</span>
+  
+  <span class="n">SPI</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+
+  <span class="c1">//Callback handler function declarations</span>
+  <span class="n">slave</span><span class="p">.</span><span class="n">cbVector</span><span class="p">[</span><span class="n">CB_READ_COILS</span><span class="p">]</span> <span class="o">=</span> <span class="n">readCoil</span><span class="p">;</span>
+  <span class="n">slave</span><span class="p">.</span><span class="n">cbVector</span><span class="p">[</span><span class="n">CB_WRITE_COILS</span><span class="p">]</span> <span class="o">=</span> <span class="n">writeCoil</span><span class="p">;</span>
+  <span class="n">slave</span><span class="p">.</span><span class="n">cbVector</span><span class="p">[</span><span class="n">CB_READ_REGISTERS</span><span class="p">]</span> <span class="o">=</span> <span class="n">readReg</span><span class="p">;</span>
+  <span class="n">slave</span><span class="p">.</span><span class="n">cbVector</span><span class="p">[</span><span class="n">CB_WRITE_REGISTERS</span><span class="p">]</span> <span class="o">=</span> <span class="n">writeReg</span><span class="p">;</span>
+
+  <span class="n">temp_sensors</span><span class="p">.</span><span class="n">setWaitForConversion</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">loop</span><span class="p">()</span>
+<span class="p">{</span>
+  <span class="c1">//Runs the Modbus input/output and associated actions (detailed in the modbus callback functions)</span>
+  <span class="n">slave</span><span class="p">.</span><span class="n">poll</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="c1">// ###################################################################</span>
+<span class="c1">// #################### MODBUS CALLBACK FUNCTIONS ####################</span>
+<span class="c1">// ###################################################################</span>
+<span class="cm">/*</span>
+<span class="cm"> * These functions will get called when a modbus message is received with the</span>
+<span class="cm"> * function codes associated with their cbVector[]. DO NOT CALL THESE FUNCTIONS.</span>
+<span class="cm"> * They are to be called within the ModbusSlave library only.</span>
+<span class="cm"> */</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Callback function for a single holding register write (input registers can only be read)</span>
+<span class="cm"> */</span>
+<span class="kt">uint8_t</span> <span class="nf">writeReg</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="n">fc</span><span class="p">,</span> <span class="kt">uint16_t</span> <span class="n">address</span><span class="p">,</span> <span class="kt">uint16_t</span> <span class="n">length</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="k">if</span><span class="p">(</span><span class="n">fc</span> <span class="o">==</span> <span class="n">FC_WRITE_REGISTER</span><span class="p">)</span> <span class="c1">//Writing a holding register updates the voltage on a DAC channel</span>
+  <span class="p">{</span> <span class="c1">//Holding regs are 16 bit read/write</span>
+    <span class="c1">//Serial.print(&quot;1. &quot;); Serial.print(address);</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">address</span> <span class="o">&lt;</span> <span class="n">DAC_V_LEN</span><span class="p">)</span>
+    <span class="p">{</span>
+      <span class="c1">//Serial.print(&quot;\t2. &quot;); Serial.print(slave.readRegisterFromBuffer(0));</span>
+      <span class="c1">//Serial.print(&quot;\t3. &quot;); Serial.println(DAC_V_LEN);</span>
+      <span class="n">updateV</span><span class="p">(</span><span class="n">slave</span><span class="p">.</span><span class="n">readRegisterFromBuffer</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">address</span><span class="p">);</span>
+      <span class="k">return</span> <span class="n">STATUS_OK</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">else</span>
+    <span class="k">return</span> <span class="n">STATUS_ILLEGAL_FUNCTION</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Callback function for input/holding register reads</span>
+<span class="cm"> */</span>
+<span class="kt">uint8_t</span> <span class="nf">readReg</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="n">fc</span><span class="p">,</span> <span class="kt">uint16_t</span> <span class="n">address</span><span class="p">,</span> <span class="kt">uint16_t</span> <span class="n">length</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="k">if</span><span class="p">(</span><span class="n">fc</span> <span class="o">==</span> <span class="n">FC_READ_HOLDING_REGISTERS</span><span class="p">)</span> <span class="c1">//Reading a holding register returns the voltage in the register</span>
+  <span class="p">{</span> <span class="c1">//Holding regs are 16 bit read/write</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">address</span> <span class="o">&lt;</span> <span class="n">DAC_V_LEN</span><span class="p">)</span>
+    <span class="p">{</span>
+      <span class="n">slave</span><span class="p">.</span><span class="n">writeRegisterToBuffer</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">getV</span><span class="p">(</span><span class="n">address</span><span class="p">));</span>
+      <span class="k">return</span> <span class="n">STATUS_OK</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">address</span> <span class="o">&gt;</span> <span class="n">DAC_V_LEN</span> <span class="n">and</span> <span class="n">address</span> <span class="o">&lt;=</span> <span class="n">DAC_V_LEN</span> <span class="o">+</span> <span class="n">TEMP_ADDR_ARRAY_LEN</span><span class="o">*</span><span class="mi">4</span><span class="p">)</span>
+    <span class="p">{</span>
+      <span class="n">slave</span><span class="p">.</span><span class="n">writeRegisterToBuffer</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">getTAddrShort</span><span class="p">(</span><span class="n">address</span><span class="p">));</span>
+      <span class="k">return</span> <span class="n">STATUS_OK</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+      <span class="k">return</span> <span class="n">STATUS_ILLEGAL_DATA_ADDRESS</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">fc</span> <span class="o">==</span> <span class="n">FC_READ_INPUT_REGISTERS</span><span class="p">)</span>
+  <span class="p">{</span> <span class="c1">//Reading an input register reads the voltage from a DAC register</span>
+    <span class="c1">//  or reads a temperature sensor, depending on the address</span>
+    <span class="c1">//Input regs are 16 bit read-only</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">address</span> <span class="o">&lt;</span> <span class="n">DAC_V_LEN</span><span class="p">)</span>
+    <span class="p">{</span>
+      <span class="n">slave</span><span class="p">.</span><span class="n">writeRegisterToBuffer</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">readV</span><span class="p">(</span><span class="n">address</span><span class="p">));</span>
+      <span class="k">return</span> <span class="n">STATUS_OK</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">address</span> <span class="o">==</span> <span class="n">DAC_V_LEN</span><span class="p">)</span>
+    <span class="p">{</span>
+      <span class="kt">int16_t</span> <span class="n">numSensors_int16</span> <span class="o">=</span> <span class="n">initTs</span><span class="p">();</span>
+      <span class="n">slave</span><span class="p">.</span><span class="n">writeRegisterToBuffer</span><span class="p">(</span> <span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="kt">uint16_t</span><span class="p">)(((</span><span class="kt">int32_t</span><span class="p">)</span><span class="n">numSensors_int16</span><span class="p">)</span><span class="o">+</span><span class="mi">32768</span><span class="p">)</span> <span class="p">);</span>
+      <span class="k">return</span> <span class="n">STATUS_OK</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">address</span> <span class="o">&gt;</span> <span class="n">DAC_V_LEN</span> <span class="n">and</span> <span class="n">address</span> <span class="o">&lt;=</span> <span class="n">DAC_V_LEN</span> <span class="o">+</span> <span class="n">TEMP_ADDR_ARRAY_LEN</span><span class="o">*</span><span class="mi">4</span><span class="p">)</span>
+    <span class="p">{</span> 
+      <span class="c1">//Read (address-n)th temp sensor on temp data bus if address doesn&#39;t</span>
+      <span class="c1">// correspond to a DAC, where n=DAC_V_LEN</span>
+      <span class="c1">//Serial.print(&quot;\t11. &quot;); Serial.print(address);</span>
+      <span class="n">slave</span><span class="p">.</span><span class="n">writeRegisterToBuffer</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="kt">uint16_t</span><span class="p">)(</span><span class="n">getT</span><span class="p">(</span><span class="n">address</span><span class="p">)));</span>
+      <span class="k">return</span> <span class="n">STATUS_OK</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">else</span>
+    <span class="k">return</span> <span class="n">STATUS_ILLEGAL_FUNCTION</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Callback function for writing single bits to turn on/off DAC channel analog outputs</span>
+<span class="cm"> */</span>
+<span class="kt">uint8_t</span> <span class="nf">writeCoil</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="n">fc</span><span class="p">,</span> <span class="kt">uint16_t</span> <span class="n">address</span><span class="p">,</span> <span class="kt">uint16_t</span> <span class="n">length</span><span class="p">)</span>
+<span class="p">{</span> <span class="c1">//Coils are 1 bit read/write</span>
+  <span class="k">if</span><span class="p">(</span><span class="n">fc</span> <span class="o">==</span> <span class="n">FC_WRITE_COIL</span><span class="p">)</span>
+  <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">address</span> <span class="o">&lt;</span> <span class="n">DAC_V_LEN</span><span class="p">)</span>
+    <span class="p">{</span>
+      <span class="n">power</span><span class="p">(</span><span class="n">slave</span><span class="p">.</span><span class="n">readCoilFromBuffer</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">address</span><span class="p">);</span>
+      <span class="k">return</span> <span class="n">STATUS_OK</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+      <span class="k">return</span> <span class="n">STATUS_ILLEGAL_DATA_ADDRESS</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">else</span>
+    <span class="k">return</span> <span class="n">STATUS_ILLEGAL_FUNCTION</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Callback function for reading single bits returns the DAC channel power boolean in the coil</span>
+<span class="cm"> */</span>
+<span class="kt">uint8_t</span> <span class="nf">readCoil</span><span class="p">(</span><span class="kt">uint8_t</span> <span class="n">fc</span><span class="p">,</span> <span class="kt">uint16_t</span> <span class="n">address</span><span class="p">,</span> <span class="kt">uint16_t</span> <span class="n">length</span><span class="p">)</span>
+<span class="p">{</span> <span class="c1">//Coils are 1 bit read/write</span>
+  <span class="k">if</span><span class="p">(</span><span class="n">fc</span> <span class="o">==</span> <span class="n">FC_READ_COILS</span><span class="p">)</span>
+  <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">address</span> <span class="o">&lt;</span> <span class="n">DAC_V_LEN</span><span class="p">)</span>
+    <span class="p">{</span>
+      <span class="n">slave</span><span class="p">.</span><span class="n">writeCoilToBuffer</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">getPower</span><span class="p">(</span><span class="n">address</span><span class="p">));</span>
+      <span class="k">return</span> <span class="n">STATUS_OK</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">address</span> <span class="o">&gt;</span> <span class="n">DAC_V_LEN</span> <span class="n">and</span> <span class="n">address</span> <span class="o">&lt;=</span> <span class="n">DAC_V_LEN</span> <span class="o">+</span> <span class="n">TEMP_ADDR_ARRAY_LEN</span><span class="p">)</span>
+    <span class="p">{</span>
+      <span class="n">slave</span><span class="p">.</span><span class="n">writeCoilToBuffer</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">recordT</span><span class="p">(</span><span class="n">address</span><span class="p">));</span>
+      <span class="k">return</span> <span class="n">STATUS_OK</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">else</span>
+      <span class="k">return</span> <span class="n">STATUS_ILLEGAL_DATA_ADDRESS</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">else</span>
+    <span class="k">return</span> <span class="n">STATUS_ILLEGAL_FUNCTION</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// ###############################################################</span>
+<span class="c1">// #################### DAC CONTROL FUNCTIONS ####################</span>
+<span class="c1">// ###############################################################</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Updates the voltage in the DAC channel input and DAC register</span>
+<span class="cm"> * @param newV The new raw voltage to command</span>
+<span class="cm"> * @param address The DAC channel address</span>
+<span class="cm"> */</span>
+<span class="kt">void</span> <span class="nf">updateV</span><span class="p">(</span><span class="kt">uint16_t</span> <span class="n">newV</span><span class="p">,</span> <span class="kt">uint16_t</span> <span class="n">address</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="n">dacV</span><span class="p">[</span><span class="n">address</span><span class="p">]</span> <span class="o">=</span> <span class="n">newV</span> <span class="o">&lt;</span> <span class="mi">4096</span> <span class="o">?</span> <span class="nl">newV</span> <span class="p">:</span> <span class="mi">4095</span><span class="p">;</span> <span class="c1">//newV must be a 12-bit number or less</span>
+  <span class="kt">uint8_t</span> <span class="n">csPin</span> <span class="o">=</span> <span class="n">CS_ARRAY</span><span class="p">[</span><span class="n">address</span> <span class="o">/</span> <span class="mi">4</span><span class="p">];</span>
+  <span class="c1">//Serial.print(&quot;1. &quot;); Serial.print(address);</span>
+  <span class="c1">//Serial.print(&quot;\t2. &quot;); Serial.print(address /4);</span>
+  <span class="c1">//Serial.print(&quot;\t3. &quot;); Serial.print(csPin);</span>
+  <span class="c1">//Serial.print(&quot;\t4. &quot;); Serial.print(address % 4,BIN);</span>
+  <span class="c1">//Serial.print(&quot;\t5. &quot;); Serial.print((address+1) % 4,BIN);</span>
+  <span class="c1">//Serial.print(&quot;\t6. &quot;); Serial.print((address % 4)+1,BIN);</span>
+  <span class="c1">//Serial.print(&quot;\t7. &quot;); Serial.print(newV % 4096,BIN);</span>
+  <span class="c1">//Creates the input register byte</span>
+  <span class="kt">uint16_t</span> <span class="n">updateVoltageWord</span> <span class="o">=</span> <span class="p">(</span><span class="n">newV</span> <span class="o">%</span> <span class="mi">4096</span><span class="p">)</span> <span class="o">+</span> <span class="p">(((</span><span class="n">address</span> <span class="o">%</span> <span class="mi">4</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">12</span><span class="p">);</span>
+  <span class="c1">//Serial.print(&quot;\t8. &quot;); Serial.println(updateVoltageWord, BIN);</span>
+  <span class="n">SPI</span><span class="p">.</span><span class="n">beginTransaction</span><span class="p">(</span><span class="n">spiSet</span><span class="p">);</span>
+  
+  <span class="n">digitalWrite</span><span class="p">(</span><span class="n">csPin</span><span class="p">,</span> <span class="n">LOW</span><span class="p">);</span> <span class="c1">//Hold SYNC low on this DAC to update input register</span>
+  <span class="n">delayMicroseconds</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+  <span class="n">SPI</span><span class="p">.</span><span class="n">transfer16</span><span class="p">(</span><span class="n">updateVoltageWord</span><span class="p">);</span>
+  <span class="n">delayMicroseconds</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+  <span class="n">digitalWrite</span><span class="p">(</span><span class="n">csPin</span><span class="p">,</span> <span class="n">HIGH</span><span class="p">);</span>
+  
+  <span class="n">digitalWrite</span><span class="p">(</span><span class="n">LDAC_PIN</span><span class="p">,</span> <span class="n">LOW</span><span class="p">);</span> <span class="c1">//Write input register data to DAC register by pulsing LDAC</span>
+  <span class="n">delayMicroseconds</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+  <span class="n">digitalWrite</span><span class="p">(</span><span class="n">LDAC_PIN</span><span class="p">,</span> <span class="n">HIGH</span><span class="p">);</span>
+  
+  <span class="n">SPI</span><span class="p">.</span><span class="n">endTransaction</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Returns the DAC channel voltage currently in the holding register</span>
+<span class="cm"> * @return The raw voltage currently stored in the holding register</span>
+<span class="cm"> */</span>
+<span class="kt">uint16_t</span> <span class="nf">getV</span><span class="p">(</span><span class="kt">uint16_t</span> <span class="n">address</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="k">return</span> <span class="n">dacV</span><span class="p">[</span><span class="n">address</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Powers up or down a DAC analog channel</span>
+<span class="cm"> * @param powerOn True if power is desired; false if not</span>
+<span class="cm"> * @param address The DAC channel address</span>
+<span class="cm"> */</span>
+<span class="kt">void</span> <span class="nf">power</span><span class="p">(</span><span class="kt">bool</span> <span class="n">powerOn</span><span class="p">,</span> <span class="kt">uint16_t</span> <span class="n">address</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="c1">//This is the saved control register value for the DAC</span>
+  <span class="kt">uint16_t</span> <span class="n">powWord</span> <span class="o">=</span> <span class="n">controlArray</span><span class="p">[</span><span class="n">address</span> <span class="o">/</span> <span class="mi">4</span><span class="p">];</span>
+  <span class="kt">uint16_t</span> <span class="n">nopWord</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">//Send a null after writing to control reg</span>
+  
+  <span class="kt">uint16_t</span> <span class="n">csPin</span> <span class="o">=</span> <span class="n">CS_ARRAY</span><span class="p">[</span><span class="n">address</span> <span class="o">/</span> <span class="mi">4</span><span class="p">];</span>
+
+  <span class="c1">//This byte picks out the power-up/down bit for the DAC channel</span>
+  <span class="kt">uint16_t</span> <span class="n">bitLoc</span> <span class="o">=</span> <span class="n">_BV</span><span class="p">(</span><span class="n">address</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">+</span> <span class="mi">2</span><span class="p">);</span>
+
+  <span class="c1">//If you want to power up the channel, set the bit to 1; else 0</span>
+  <span class="n">powWord</span> <span class="o">=</span> <span class="n">powerOn</span> <span class="o">?</span> <span class="n">powWord</span> <span class="o">|</span> <span class="nl">bitLoc</span> <span class="p">:</span> <span class="n">powWord</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">bitLoc</span><span class="p">;</span>
+  <span class="c1">//Now save the control register value</span>
+  <span class="n">controlArray</span><span class="p">[</span><span class="n">address</span> <span class="o">/</span> <span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">powWord</span><span class="p">;</span>
+  
+  <span class="n">SPI</span><span class="p">.</span><span class="n">beginTransaction</span><span class="p">(</span><span class="n">spiSet</span><span class="p">);</span>
+  
+  <span class="n">digitalWrite</span><span class="p">(</span><span class="n">csPin</span><span class="p">,</span> <span class="n">LOW</span><span class="p">);</span>
+  <span class="n">delayMicroseconds</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+  <span class="n">SPI</span><span class="p">.</span><span class="n">transfer16</span><span class="p">(</span><span class="n">powWord</span><span class="p">);</span>
+  <span class="n">SPI</span><span class="p">.</span><span class="n">transfer16</span><span class="p">(</span><span class="n">nopWord</span><span class="p">);</span>
+  <span class="n">delayMicroseconds</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+  <span class="n">digitalWrite</span><span class="p">(</span><span class="n">csPin</span><span class="p">,</span> <span class="n">HIGH</span><span class="p">);</span>
+  
+  <span class="n">SPI</span><span class="p">.</span><span class="n">endTransaction</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Returns whether the DAC channel is powered on or off based on its control byte</span>
+<span class="cm"> * @param address The DAC channel address</span>
+<span class="cm"> * @return True if on; false if off</span>
+<span class="cm"> */</span>
+<span class="kt">bool</span> <span class="nf">getPower</span><span class="p">(</span><span class="kt">uint16_t</span> <span class="n">address</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="c1">//Serial.print(&quot;controlArray: &quot;); Serial.print(controlArray[address / 4], BIN);</span>
+  <span class="k">return</span> <span class="n">controlArray</span><span class="p">[</span><span class="n">address</span> <span class="o">/</span> <span class="mi">4</span><span class="p">]</span> <span class="o">&amp;</span> <span class="n">_BV</span><span class="p">(</span><span class="n">address</span> <span class="o">%</span> <span class="mi">4</span> <span class="o">+</span> <span class="mi">2</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Reads input register voltage from the specified channel</span>
+<span class="cm"> * </span>
+<span class="cm"> * NOTE: This may not return the exact value from the input register. It may be off by a single LSB.</span>
+<span class="cm"> * </span>
+<span class="cm"> *  @param address The DAC channel address</span>
+<span class="cm"> *  @return The raw voltage read from the DAC channel&#39;s input register</span>
+<span class="cm"> */</span>
+<span class="kt">uint16_t</span> <span class="nf">readV</span><span class="p">(</span><span class="kt">uint16_t</span> <span class="n">address</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="kt">uint8_t</span> <span class="n">csPin</span> <span class="o">=</span> <span class="n">CS_ARRAY</span><span class="p">[</span><span class="n">address</span> <span class="o">/</span> <span class="mi">4</span><span class="p">];</span>
+  <span class="kt">uint16_t</span> <span class="n">readVWord</span> <span class="o">=</span> <span class="mb">0b1000000000000000</span> <span class="o">+</span> <span class="p">(((</span><span class="n">address</span> <span class="o">%</span> <span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">12</span><span class="p">);</span>
+  <span class="c1">//Serial.print(&quot;\t9. &quot;); Serial.println(readVWord, BIN);</span>
+  <span class="n">SPI</span><span class="p">.</span><span class="n">beginTransaction</span><span class="p">(</span><span class="n">spiSet</span><span class="p">);</span>
+  
+  <span class="n">digitalWrite</span><span class="p">(</span><span class="n">csPin</span><span class="p">,</span> <span class="n">LOW</span><span class="p">);</span>
+  <span class="n">delayMicroseconds</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+  <span class="kt">uint16_t</span> <span class="n">vRead</span> <span class="o">=</span> <span class="p">(</span><span class="n">SPI</span><span class="p">.</span><span class="n">transfer16</span><span class="p">(</span><span class="n">readVWord</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4096</span><span class="p">;</span> <span class="c1">//Leftshift one to correct for reading on wrong side of clk cycle</span>
+  <span class="n">delayMicroseconds</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+  <span class="n">digitalWrite</span><span class="p">(</span><span class="n">csPin</span><span class="p">,</span> <span class="n">HIGH</span><span class="p">);</span>
+  
+  <span class="n">SPI</span><span class="p">.</span><span class="n">endTransaction</span><span class="p">();</span>
+  <span class="c1">//Serial.print(&quot;\t10. &quot;); Serial.println(vRead, BIN);</span>
+  <span class="k">return</span> <span class="n">vRead</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+<span class="cm">/**</span>
+<span class="cm"> * Initializes temperature sensors by finding the addresses of all sensors on the bus</span>
+<span class="cm"> * </span>
+<span class="cm"> * @return The number of sensors found on the bus or -1 if there is an error with getting an address</span>
+<span class="cm"> */</span>
+<span class="kt">int16_t</span> <span class="nf">initTs</span><span class="p">()</span>
+<span class="p">{</span>
+  <span class="n">temp_sensors</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="c1">//Initialize or re-initialize temp sensors</span>
+  <span class="n">memset</span><span class="p">(</span><span class="n">tempAddrArray</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">tempAddrArray</span><span class="p">));</span> <span class="c1">//Reset the temp sensor addresses</span>
+  
+  <span class="kt">uint8_t</span> <span class="n">numDevices</span> <span class="o">=</span> <span class="n">temp_sensors</span><span class="p">.</span><span class="n">getDeviceCount</span><span class="p">();</span>
+  <span class="c1">//Serial.print(&quot;\tNum Sensors: &quot;); Serial.print(numDevices);</span>
+  
+  <span class="kt">bool</span> <span class="n">notFound</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">for</span><span class="p">(</span><span class="kt">uint16_t</span> <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="n">min</span><span class="p">(</span><span class="n">numDevices</span><span class="p">,</span><span class="n">TEMP_ADDR_ARRAY_LEN</span><span class="p">);</span> <span class="n">index</span><span class="o">++</span><span class="p">)</span> <span class="c1">//Loop through sensors on data bus</span>
+  <span class="p">{</span>
+    <span class="n">notFound</span> <span class="o">+=</span> <span class="o">!</span><span class="n">temp_sensors</span><span class="p">.</span><span class="n">getAddress</span><span class="p">(</span><span class="n">tempAddrArray</span><span class="p">[</span><span class="n">index</span><span class="p">].</span><span class="n">bytes</span><span class="p">,</span> <span class="n">index</span><span class="p">);</span> 
+  <span class="p">}</span>
+  <span class="k">if</span><span class="p">(</span><span class="n">notFound</span><span class="p">)</span> <span class="c1">//notFound nonzero if can&#39;t find a sensor</span>
+    <span class="k">return</span> <span class="mi">-1</span><span class="p">;</span>
+  <span class="k">else</span>
+    <span class="k">return</span> <span class="p">((</span><span class="kt">int16_t</span><span class="p">)</span> <span class="n">numDevices</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Returns 16 bits of the 64-bit temperature controller address</span>
+<span class="cm"> */</span>
+<span class="kt">uint16_t</span> <span class="nf">getTAddrShort</span><span class="p">(</span><span class="kt">uint16_t</span> <span class="n">address</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="kt">uint16_t</span> <span class="n">index</span>       <span class="o">=</span> <span class="p">(</span><span class="n">address</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">DAC_V_LEN</span><span class="p">)</span> <span class="o">/</span> <span class="mi">4</span><span class="p">;</span> <span class="c1">//Which temperature controller do I want?</span>
+  <span class="kt">uint16_t</span> <span class="n">short_index</span> <span class="o">=</span> <span class="p">(</span><span class="n">address</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">DAC_V_LEN</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span><span class="p">;</span> <span class="c1">//Which 16 bits of the temperature controller address do I want?</span>
+
+  <span class="c1">//Serial.print(&quot;TAddr: &quot;); Serial.print(index); Serial.print(&quot;, &quot;); Serial.print(short_index); Serial.print(&quot;: &quot;);</span>
+  <span class="c1">//Serial.print(tempAddrArray[index].shorts[short_index], HEX); Serial.println();</span>
+  
+  <span class="k">return</span> <span class="n">tempAddrArray</span><span class="p">[</span><span class="n">index</span><span class="p">].</span><span class="n">shorts</span><span class="p">[</span><span class="n">short_index</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Requests a temperature be recorded by the sensor on the bus corresponding to the address</span>
+<span class="cm"> * </span>
+<span class="cm"> * @param address The DAC address of the index = (address - NUM_BOARDS*2*4) temp sensor on the 1-wire bus</span>
+<span class="cm"> * @return false if sensor is disconnected; true otherwise</span>
+<span class="cm"> */</span>
+<span class="kt">bool</span> <span class="nf">recordT</span><span class="p">(</span><span class="kt">uint16_t</span> <span class="n">address</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="kt">uint16_t</span> <span class="n">index</span> <span class="o">=</span> <span class="p">(</span><span class="n">address</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">DAC_V_LEN</span><span class="p">)</span><span class="o">/</span><span class="mi">4</span><span class="p">;</span> <span class="c1">//Which temp sensor on the bus to choose (0 is closest to Arduino)</span>
+  <span class="k">return</span> <span class="n">temp_sensors</span><span class="p">.</span><span class="n">requestTemperaturesByAddress</span><span class="p">(</span><span class="n">tempAddrArray</span><span class="p">[</span><span class="n">index</span><span class="p">].</span><span class="n">bytes</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Gets the temperature previously recorded by the sensor on the bus corresponding to the address</span>
+<span class="cm"> * </span>
+<span class="cm"> * @param address The DAC address of the (address - NUM_BOARDS*2*4)th temp sensor on the 1-wire bus</span>
+<span class="cm"> */</span>
+<span class="kt">uint16_t</span> <span class="nf">getT</span><span class="p">(</span><span class="kt">uint16_t</span> <span class="n">address</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="kt">uint16_t</span> <span class="n">index</span> <span class="o">=</span> <span class="p">(</span><span class="n">address</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">DAC_V_LEN</span><span class="p">)</span><span class="o">/</span><span class="mi">4</span><span class="p">;</span> <span class="c1">//Which temp sensor on the bus to choose (0 is closest to Arduino)</span>
+  <span class="k">return</span> <span class="p">(</span><span class="kt">uint16_t</span><span class="p">)(</span><span class="n">temp_sensors</span><span class="p">.</span><span class="n">getTemp</span><span class="p">((</span><span class="kt">uint8_t</span><span class="o">*</span><span class="p">)</span> <span class="n">tempAddrArray</span><span class="p">[</span><span class="n">index</span><span class="p">].</span><span class="n">bytes</span><span class="p">)</span> <span class="o">+</span> <span class="mi">32768</span><span class="p">);</span> <span class="c1">//Convert to uint16 for transmission</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2018, Austin Stover
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
