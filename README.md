@@ -47,8 +47,7 @@ v0.4 added a command line interface for DAC control.
 
 **Getting Started**
   1. Install all required packages and upload DacSlave.ino to the Arduino. Ensure all hardwire is wired
-  according to the schematic on the [APT wiki](https://sites.physics.wustl.edu/APTwiki/index.php/DAC_Manager).
-  
+  according to the schematic on the [APT wiki](https://sites.physics.wustl.edu/APTwiki/index.php/DAC_Manager). \
   MinimalModbus is a Python package and may be installed using pip or some other python package manager.
   ArduinoModbusSlave is a custom library that can be installed in the `Arduino\libraries` directory or
   using the "Add .ZIP library..." option in the Arduino IDE. DallasTemperature and OneWire may both be
